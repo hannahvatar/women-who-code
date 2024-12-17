@@ -1,0 +1,45 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Checkout</h1>
+
+  <%= form_with(model: @order, local: true, class: "max-w-lg") do |f| %>
+    <% if @order.errors.any? %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <ul>
+          <% @order.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="mb-4">
+      <%= f.label :email, class: "block text-gray-700 text-sm font-bold mb-2" %>
+      <%= f.email_field :email, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    </div>
+
+    <div class="mb-4">
+      <%= f.label :shipping_address, class: "block text-gray-700 text-sm font-bold mb-2" %>
+      <%= f.text_area :shipping_address, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    </div>
+
+    <div class="mb-4">
+      <%= f.label :phone_number, class: "block text-gray-700 text-sm font-bold mb-2" %>
+      <%= f.telephone_field :phone_number, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    </div>
+
+    <div class="mb-4">
+      <%= f.label :shipping_method, class: "block text-gray-700 text-sm font-bold mb-2" %>
+      <%= f.select :shipping_method,
+          ['Standard', 'Express'],
+          {},
+          class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    </div>
+
+    <%= hidden_field_tag :variant_id, params[:variant_id] %>
+    <%= hidden_field_tag :quantity, 1 %>
+
+    <div class="flex items-center justify-between">
+      <%= f.submit "Place Order", class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+    </div>
+  <% end %>
+</div>
