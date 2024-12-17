@@ -1,14 +1,17 @@
 <div class="container mx-auto px-4">
   <div class="flex flex-col md:flex-row gap-8">
     <!-- Product Image -->
+<!-- Product Image -->
+<!-- In your HTML (products/show.html.erb) -->
     <div class="md:w-1/2">
-      <!-- Main product image, will update with JavaScript -->
-      <img
-        id="main-product-image"
-        src="<%= @product.product_variants.first.image_url %>"
-        alt="<%= @product.name %>"
-        class="w-full h-auto rounded-lg shadow-lg"
-      >
+      <div class="product-image__container">
+        <img
+          id="main-product-image"
+          src="<%= @product.product_variants.first.image_url %>"
+          alt="<%= @product.name %>"
+          class="product-image__main"
+        >
+      </div>
     </div>
 
     <!-- Product Info -->
