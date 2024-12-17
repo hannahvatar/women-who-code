@@ -2,8 +2,13 @@
   <div class="flex flex-col md:flex-row gap-8">
     <!-- Product Image -->
     <div class="md:w-1/2">
-      <!-- Placeholder for product image -->
-      <div class="bg-gray-200 aspect-square"></div>
+      <!-- Main product image, will update with JavaScript -->
+      <img
+        id="main-product-image"
+        src="<%= @product.product_variants.first.image_url %>"
+        alt="<%= @product.name %>"
+        class="w-full h-auto rounded-lg shadow-lg"
+      >
     </div>
 
     <!-- Product Info -->
@@ -19,7 +24,8 @@
           <% @colors.each do |color| %>
             <button
               data-color-id="<%= color.id %>"
-              class="color-select p-2 border rounded-lg">
+              data-image-url="<%= @product.product_variants.find_by(color: color)&.image_url %>"
+              class="color-select p-2 border rounded-lg hover:border-blue-500">
               <%= color.name %>
             </button>
           <% end %>
@@ -33,7 +39,7 @@
           <% @sizes.each do |size| %>
             <button
               data-size-id="<%= size.id %>"
-              class="size-select p-2 border rounded-lg">
+              class="size-select p-2 border rounded-lg hover:border-blue-500">
               <%= size.name %>
             </button>
           <% end %>
@@ -44,7 +50,7 @@
       <%= form_tag new_order_path, method: :get, class: "mt-6" do %>
         <%= hidden_field_tag :variant_id, "", id: "selected_variant_id" %>
         <%= button_tag "Add to Cart",
-            class: "w-full bg-blue-600 text-white py-3 px-6 rounded-lg disabled:bg-gray-400",
+            class: "w-full bg-blue-600 text-white py-3 px-6 rounded-lg disabled:bg-gray-400 hover:bg-blue-700",
             disabled: true,
             id: "add_to_cart_button" %>
       <% end %>
@@ -52,18 +58,33 @@
   </div>
 </div>
 
-<%# JavaScript for handling variant selection %>
+<%# JavaScript for handling variant selection and image updates %>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   let selectedColor = null;
   let selectedSize = null;
   const addToCartButton = document.getElementById('add_to_cart_button');
   const variantIdField = document.getElementById('selected_variant_id');
+  const mainImage = document.getElementById('main-product-image');
 
   // Color selection
   document.querySelectorAll('.color-select').forEach(button => {
     button.addEventListener('click', function() {
+      // Update selected color
       selectedColor = this.dataset.colorId;
+
+      // Update image
+      const imageUrl = this.dataset.imageUrl;
+      if (imageUrl) {
+        mainImage.src = imageUrl;
+      }
+
+      // Update visual selection
+      document.querySelectorAll('.color-select').forEach(btn => {
+        btn.classList.remove('border-blue-500', 'border-2');
+      });
+      this.classList.add('border-blue-500', 'border-2');
+
       checkVariantAvailability();
     });
   });
@@ -71,7 +92,15 @@ document.addEventListener('DOMContentLoaded', function() {
   // Size selection
   document.querySelectorAll('.size-select').forEach(button => {
     button.addEventListener('click', function() {
+      // Update selected size
       selectedSize = this.dataset.sizeId;
+
+      // Update visual selection
+      document.querySelectorAll('.size-select').forEach(btn => {
+        btn.classList.remove('border-blue-500', 'border-2');
+      });
+      this.classList.add('border-blue-500', 'border-2');
+
       checkVariantAvailability();
     });
   });
@@ -84,9 +113,13 @@ document.addEventListener('DOMContentLoaded', function() {
           if (data.available) {
             addToCartButton.disabled = false;
             variantIdField.value = data.id;
+            addToCartButton.classList.remove('bg-gray-400');
+            addToCartButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
           } else {
             addToCartButton.disabled = true;
             variantIdField.value = "";
+            addToCartButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            addToCartButton.classList.add('bg-gray-400');
           }
         });
     }

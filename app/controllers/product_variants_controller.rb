@@ -1,6 +1,5 @@
 class ProductVariantsController < ApplicationController
   def index
-    # This will be used for AJAX calls to check stock/price
     variant = ProductVariant.find_by(
       product_id: params[:product_id],
       color_id: params[:color_id],
@@ -8,6 +7,7 @@ class ProductVariantsController < ApplicationController
     )
 
     render json: {
+      id: variant&.id,
       price: variant&.price,
       stock: variant&.stock,
       available: variant&.stock.to_i > 0
