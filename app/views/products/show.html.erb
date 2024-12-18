@@ -12,20 +12,30 @@
     <p class="product-description"><%= @product.description %></p>
 
     <div class="squiggly-svg">
-      <svg viewBox="0 0 100 10" preserveAspectRatio="none" width="100%" height="100%">
-        <path d="M0 5 Q 10 0 20 5 T 40 5 T 60 5 T 80 5 T 100 5" stroke="#FFB9B4" stroke-width="1" fill="none"/>
+      <svg viewBox="0 0 100 15" preserveAspectRatio="none" width="100%" height="100%">
+        <path
+          d="M0 7 Q 10 2 20 7 T 40 7 T 60 7 T 80 7 T 100 7"
+          stroke="#FFB9B4"
+          stroke-width="2"
+          fill="none"
+        />
       </svg>
     </div>
 
     <div class="price"><%= format_price(@product.base_price) %></div>
 
     <div class="squiggly-svg">
-      <svg viewBox="0 0 100 10" preserveAspectRatio="none" width="100%" height="100%">
-        <path d="M0 5 Q 10 0 20 5 T 40 5 T 60 5 T 80 5 T 100 5" stroke="#FFB9B4" stroke-width="1" fill="none"/>
+      <svg viewBox="0 0 100 15" preserveAspectRatio="none" width="100%" height="100%">
+        <path
+          d="M0 7 Q 10 2 20 7 T 40 7 T 60 7 T 80 7 T 100 7"
+          stroke="#FFB9B4"
+          stroke-width="2"
+          fill="none"
+        />
       </svg>
     </div>
 
-    <p>Colors</p>
+    <p class="product-description">Colors</p>
     <div class="swatches">
       <% @colors.each do |color| %>
         <button
@@ -37,7 +47,7 @@
       <% end %>
     </div>
 
-    <p>Select sizes</p>
+    <p class="product-description">Select sizes</p>
     <%= link_to "Size guide", "#", class: "size-guide-link" %>
     <div class="sizes">
       <% @sizes.each do |size| %>

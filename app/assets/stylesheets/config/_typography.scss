@@ -1,12 +1,15 @@
 // Import fonts
 @import url('https://fonts.googleapis.com/css2?family=Caprasimo&family=Noto+Sans:wght@400;500;600;700&display=swap');
+@import "colors";
 
 // Headers
 h1, .h1 {
-  font-family: 'Caprasimo', serif;
-  font-size: 2.5rem;  // 40px
-  line-height: 1.2;
-  margin-bottom: 1rem;
+  font-family: "Noto Serif", serif;
+  font-style: normal;
+  font-weight: 500;
+  color: $purple-700;
+  font-size: 20px;
+  margin-bottom: 8px;
 }
 
 h2, .h2 {
@@ -35,7 +38,7 @@ body {
   font-family: 'Noto Sans', sans-serif;
   font-size: 1rem;    // 16px
   line-height: 1.5;
-  color: #333333;
+  color: $purple-700;
 }
 
 p {
@@ -85,4 +88,26 @@ p {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+// In _typography.scss
+
+// Product card
+.bloc-02 {
+  h1 {
+    font-family: "Noto Serif", serif;
+    font-style: normal;
+    font-weight: 600;
+    color: $purple-700;
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+
+  p.product-description {
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: $purple-700;
+    margin-bottom: 1rem;
+  }
 }

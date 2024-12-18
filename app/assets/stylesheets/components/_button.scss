@@ -1,0 +1,78 @@
+.button {
+  outline: none;
+  box-shadow: none;
+  border: none;
+  font-size: 20px;
+  font-family: "Noto Serif", serif;
+  font-weight: 800;
+  padding: 18px 60px;
+  overflow: hidden;
+  background: #FFBE00;
+  color: #1b2ac7;
+  width: 100%;
+  cursor: pointer;
+  position: relative;
+
+  // Custom clip-path for unique shape
+  clip-path: polygon(
+    2px 36px,
+    37px 2px,
+    calc(100% - 2px) 2px,
+    calc(100% - 2px) calc(100% - 36px),
+    calc(100% - 36px) calc(100% - 2px),
+    2px calc(100% - 2px),
+    2px 36px
+  );
+
+  transition: background-color 0.3s ease;
+
+  // Hover state
+  &:hover:not(:disabled) {
+    background-color: rgba(255, 190, 0, 0.20);
+    color: #FFBE00;
+  }
+  clip-path: polygon(
+    2px 36px,
+    37px 2px,
+    calc(100% - 2px) 2px,
+    calc(100% - 2px) calc(100% - 36px),
+    calc(100% - 36px) calc(100% - 2px),
+    2px calc(100% - 2px),
+    2px 36px
+  );
+
+  // Disabled state
+  &.disabled,
+  &:disabled {
+    background-color: $yellow-300;
+    cursor: not-allowed;
+    clip-path: none;
+  }
+
+    // Custom clip-path for unique shape
+    clip-path: polygon(
+      2px 36px,
+      37px 2px,
+      calc(100% - 2px) 2px,
+      calc(100% - 2px) calc(100% - 36px),
+      calc(100% - 36px) calc(100% - 2px),
+      2px calc(100% - 2px),
+      2px 36px
+    );
+}
+
+// Container for the button
+.add-to-cart {
+  margin-top: 2rem;
+  width: 100%;
+
+  clip-path: polygon(
+    2px 36px,
+    37px 2px,
+    calc(100% - 2px) 2px,
+    calc(100% - 2px) calc(100% - 36px),
+    calc(100% - 36px) calc(100% - 2px),
+    2px calc(100% - 2px),
+    2px 36px
+  );
+}

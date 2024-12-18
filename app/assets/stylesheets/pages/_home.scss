@@ -1,1 +1,12 @@
 // Specific CSS for your home-page
+
+/* Define the body background */
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: linear-gradient(to bottom left, $purple-700, $coral-500);
+  animation: gradientAnimation 7s ease infinite;
+  background-size: 200% 200%;
+  /* Expands the gradient area to enable smooth transitions */
+}

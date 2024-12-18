@@ -28,14 +28,16 @@ class ApplicationController < ActionController::Base
   end
 
   def format_price(price)
-    case @current_currency
-    when "USD" then "$#{price}"
-    when "EUR" then "€#{price}"
-    when "GBP" then "£#{price}"
-    when "CAD" then "C$#{price}"
-    when "AUD" then "A$#{price}"
-    when "JPY" then "¥#{price}"
+    formatted_price = sprintf('%.2f', price)
 
+    case @current_currency
+    when "USD" then "$#{formatted_price}"
+    when "EUR" then "€#{formatted_price}"
+    when "GBP" then "£#{formatted_price}"
+    when "CAD" then "C$#{formatted_price}"
+    when "AUD" then "A$#{formatted_price}"
+    when "JPY" then "¥#{formatted_price}"
+    else "#{@current_currency} #{formatted_price}"
     end
   end
   helper_method :format_price

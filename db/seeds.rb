@@ -11,9 +11,9 @@ Size.destroy_all
 # Create a product
 puts "Creating product..."
 product = Product.create!(
-  name: "Classic T-Shirt",
-  description: "A comfortable cotton t-shirt",
-  base_price: 29.99
+  name: "Women who code write their future",
+  description: "Crewneck sweatshirt",
+  base_price: 125.00
 )
 
 # Create colors
@@ -31,6 +31,17 @@ large = Size.create!(name: "L")
 xlarge = Size.create!(name: "XL")
 xxlarge = Size.create!(name: "2XL")
 xxxlarge = Size.create!(name: "3XL")
+
+# Reorder the sizes
+# In db/seeds.rb or in Rails console
+puts "Reordering sizes..."
+Size.find_by(name: 'XS')&.update(order: 1)
+Size.find_by(name: 'S')&.update(order: 2)
+Size.find_by(name: 'M')&.update(order: 3)
+Size.find_by(name: 'L')&.update(order: 4)
+Size.find_by(name: 'XL')&.update(order: 5)
+Size.find_by(name: '2XL')&.update(order: 6)
+Size.find_by(name: '3XL')&.update(order: 7)
 
 # Create product variants with images
 puts "Creating product variants..."
