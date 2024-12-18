@@ -1,59 +1,59 @@
-<div class="container mx-auto px-4">
-  <div class="flex flex-col md:flex-row gap-8">
-    <!-- Product Image -->
-<!-- Product Image -->
-<!-- In your HTML (products/show.html.erb) -->
-    <div class="md:w-1/2">
-      <div class="product-image__container">
-        <img
-          id="main-product-image"
-          src="<%= @product.product_variants.first.image_url %>"
-          alt="<%= @product.name %>"
-          class="product-image__main"
-        >
-      </div>
+<div class="card">
+  <div class="bloc-01">
+    <img
+      id="main-product-image"
+      src="<%= @product.product_variants.first.image_url %>"
+      alt="<%= @product.name %>"
+    >
+  </div>
+
+  <div class="bloc-02">
+    <h1><%= @product.name %></h1>
+    <p class="product-description"><%= @product.description %></p>
+
+    <div class="squiggly-svg">
+      <svg viewBox="0 0 100 10" preserveAspectRatio="none" width="100%" height="100%">
+        <path d="M0 5 Q 10 0 20 5 T 40 5 T 60 5 T 80 5 T 100 5" stroke="#FFB9B4" stroke-width="1" fill="none"/>
+      </svg>
     </div>
 
-    <!-- Product Info -->
-    <div class="md:w-1/2">
-      <h1 class="text-3xl font-bold mb-4"><%= @product.name %></h1>
-      <p class="text-gray-600 mb-4"><%= @product.description %></p>
-      <p class="text-2xl font-bold mb-6">Starting at <%= number_to_currency(@product.base_price) %></p>
+    <div class="price"><%= format_price(@product.base_price) %></div>
 
-      <!-- Color Selection -->
-      <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-2">Select Color</h2>
-        <div class="flex gap-2">
-          <% @colors.each do |color| %>
-            <button
-              data-color-id="<%= color.id %>"
-              data-image-url="<%= @product.product_variants.find_by(color: color)&.image_url %>"
-              class="color-select p-2 border rounded-lg hover:border-blue-500">
-              <%= color.name %>
-            </button>
-          <% end %>
-        </div>
-      </div>
+    <div class="squiggly-svg">
+      <svg viewBox="0 0 100 10" preserveAspectRatio="none" width="100%" height="100%">
+        <path d="M0 5 Q 10 0 20 5 T 40 5 T 60 5 T 80 5 T 100 5" stroke="#FFB9B4" stroke-width="1" fill="none"/>
+      </svg>
+    </div>
 
-      <!-- Size Selection -->
-      <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-2">Select Size</h2>
-        <div class="flex gap-2">
-          <% @sizes.each do |size| %>
-            <button
-              data-size-id="<%= size.id %>"
-              class="size-select p-2 border rounded-lg hover:border-blue-500">
-              <%= size.name %>
-            </button>
-          <% end %>
-        </div>
-      </div>
+    <p>Colors</p>
+    <div class="swatches">
+      <% @colors.each do |color| %>
+        <button
+          data-color-id="<%= color.id %>"
+          data-image-url="<%= @product.product_variants.find_by(color: color)&.image_url %>"
+          class="color-select">
+          <%= image_tag "swatch-#{color.name.downcase}.svg", alt: color.name %>
+        </button>
+      <% end %>
+    </div>
 
-      <!-- Add to Cart Button -->
-      <%= form_tag new_order_path, method: :get, class: "mt-6" do %>
+    <p>Select sizes</p>
+    <%= link_to "Size guide", "#", class: "size-guide-link" %>
+    <div class="sizes">
+      <% @sizes.each do |size| %>
+        <button
+          data-size-id="<%= size.id %>"
+          class="size-button">
+          <%= size.name.downcase %>
+        </button>
+      <% end %>
+    </div>
+
+    <div class="add-to-cart">
+      <%= form_tag new_order_path, method: :get do %>
         <%= hidden_field_tag :variant_id, "", id: "selected_variant_id" %>
         <%= button_tag "Add to Cart",
-            class: "w-full bg-blue-600 text-white py-3 px-6 rounded-lg disabled:bg-gray-400 hover:bg-blue-700",
+            class: "button",
             disabled: true,
             id: "add_to_cart_button" %>
       <% end %>
@@ -61,7 +61,6 @@
   </div>
 </div>
 
-<%# JavaScript for handling variant selection and image updates %>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   let selectedColor = null;
@@ -73,37 +72,27 @@ document.addEventListener('DOMContentLoaded', function() {
   // Color selection
   document.querySelectorAll('.color-select').forEach(button => {
     button.addEventListener('click', function() {
-      // Update selected color
       selectedColor = this.dataset.colorId;
-
-      // Update image
       const imageUrl = this.dataset.imageUrl;
       if (imageUrl) {
         mainImage.src = imageUrl;
       }
-
-      // Update visual selection
       document.querySelectorAll('.color-select').forEach(btn => {
-        btn.classList.remove('border-blue-500', 'border-2');
+        btn.classList.remove('selected');
       });
-      this.classList.add('border-blue-500', 'border-2');
-
+      this.classList.add('selected');
       checkVariantAvailability();
     });
   });
 
   // Size selection
-  document.querySelectorAll('.size-select').forEach(button => {
+  document.querySelectorAll('.size-button').forEach(button => {
     button.addEventListener('click', function() {
-      // Update selected size
       selectedSize = this.dataset.sizeId;
-
-      // Update visual selection
-      document.querySelectorAll('.size-select').forEach(btn => {
-        btn.classList.remove('border-blue-500', 'border-2');
+      document.querySelectorAll('.size-button').forEach(btn => {
+        btn.classList.remove('selected');
       });
-      this.classList.add('border-blue-500', 'border-2');
-
+      this.classList.add('selected');
       checkVariantAvailability();
     });
   });
@@ -116,13 +105,11 @@ document.addEventListener('DOMContentLoaded', function() {
           if (data.available) {
             addToCartButton.disabled = false;
             variantIdField.value = data.id;
-            addToCartButton.classList.remove('bg-gray-400');
-            addToCartButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            addToCartButton.classList.remove('disabled');
           } else {
             addToCartButton.disabled = true;
             variantIdField.value = "";
-            addToCartButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-            addToCartButton.classList.add('bg-gray-400');
+            addToCartButton.classList.add('disabled');
           }
         });
     }

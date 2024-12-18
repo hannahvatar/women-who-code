@@ -1,0 +1,88 @@
+// Import fonts
+@import url('https://fonts.googleapis.com/css2?family=Caprasimo&family=Noto+Sans:wght@400;500;600;700&display=swap');
+
+// Headers
+h1, .h1 {
+  font-family: 'Caprasimo', serif;
+  font-size: 2.5rem;  // 40px
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+h2, .h2 {
+  font-family: 'Caprasimo', serif;
+  font-size: 2rem;    // 32px
+  line-height: 1.2;
+  margin-bottom: 0.875rem;
+}
+
+h3, .h3 {
+  font-family: 'Caprasimo', serif;
+  font-size: 1.5rem;  // 24px
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
+}
+
+h4, .h4 {
+  font-family: 'Caprasimo', serif;
+  font-size: 1.25rem; // 20px
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+
+// Body text
+body {
+  font-family: 'Noto Sans', sans-serif;
+  font-size: 1rem;    // 16px
+  line-height: 1.5;
+  color: #333333;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+// Text styles
+.text-lg {
+  font-size: 1.125rem; // 18px
+  line-height: 1.5;
+}
+
+.text-sm {
+  font-size: 0.875rem; // 14px
+  line-height: 1.5;
+}
+
+.text-xs {
+  font-size: 0.75rem;  // 12px
+  line-height: 1.5;
+}
+
+// Font weights
+.font-normal {
+  font-weight: 400;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+// Special text styles
+.caption {
+  font-size: 0.875rem;
+  color: #666666;
+}
+
+.overline {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
