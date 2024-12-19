@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_12_18_215100) do
+ActiveRecord::Schema[7.1].define(version: 2024_12_19_184239) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -43,7 +43,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_18_215100) do
 
   create_table "orders", force: :cascade do |t|
     t.string "email", null: false
-    t.text "shipping_address", null: false
     t.string "phone_number", null: false
     t.string "order_status", default: "pending", null: false
     t.decimal "total_amount", precision: 10, scale: 2
@@ -51,6 +50,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_18_215100) do
     t.string "shipping_method"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "street_address"
+    t.string "apartment"
+    t.string "city"
+    t.string "postal_code"
+    t.string "country"
   end
 
   create_table "product_variants", force: :cascade do |t|

@@ -1,42 +1,42 @@
-<div class="container mx-auto px-4 py-8">
-  <div class="max-w-2xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6">Order Confirmation</h1>
+<!-- app/views/orders/show.html.erb -->
+<div class="container">
+  <h1 class="text-3xl font-bold mb-6">Order Confirmation</h1>
 
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
-      Thank you for your order! We'll send order updates to <%= @order.email %>
+  <div class="bg-white p-6 rounded-lg shadow">
+    <div class="order-details">
+      <h2 class="text-xl font-bold mb-4">Order #<%= @order.id %></h2>
+      <p>Status: <%= @order.order_status %></p>
+      <p>Total Amount: <%= number_to_currency(@order.total_amount) %></p>
     </div>
 
-    <div class="bg-white shadow-md rounded px-8 py-6 mb-4">
-      <h2 class="text-xl font-bold mb-4">Order Details</h2>
+    <div class="mt-6">
+      <h3 class="font-bold mb-2">Shipping Information</h3>
+      <p><%= @order.street_address %></p>
+      <% if @order.apartment.present? %>
+        <p>Apt/Suite: <%= @order.apartment %></p>
+      <% end %>
+      <p><%= @order.city %></p>
+      <p><%= @order.postal_code %></p>
+      <p><%= @order.country %></p>
+      <p>Method: <%= @order.shipping_method %></p>
+    </div>
 
-      <div class="mb-4">
-        <p class="text-gray-600">Order Number: #<%= @order.id %></p>
-        <p class="text-gray-600">Status: <%= @order.order_status.titleize %></p>
-      </div>
+    <div class="mt-6">
+      <h3 class="font-bold mb-2">Contact Information</h3>
+      <p>Email: <%= @order.email %></p>
+      <p>Phone: <%= @order.phone_number %></p>
+    </div>
 
-      <h3 class="font-bold mb-2">Items</h3>
+    <div class="mt-6">
+      <h3 class="font-bold mb-2">Order Items</h3>
       <% @order.order_items.each do |item| %>
-        <div class="border-b py-2">
-          <p><%= item.product_variant.product.name %></p>
-          <p class="text-sm text-gray-600">
-            Color: <%= item.product_variant.color.name %>,
-            Size: <%= item.product_variant.size.name %>
-          </p>
-          <p class="text-sm text-gray-600">
-            Quantity: <%= item.quantity %> x <%= number_to_currency(item.unit_price) %>
-          </p>
+        <div class="border-t py-4">
+          <p>Product: <%= item.product_variant.product.name %></p>
+          <p>Variant: <%= item.product_variant.color.name %> - <%= item.product_variant.size.name %></p>
+          <p>Quantity: <%= item.quantity %></p>
+          <p>Price: <%= number_to_currency(item.unit_price) %></p>
         </div>
       <% end %>
-
-      <div class="mt-4">
-        <p class="font-bold">Total: <%= number_to_currency(@order.total_amount) %></p>
-      </div>
-
-      <div class="mt-6">
-        <h3 class="font-bold mb-2">Shipping Information</h3>
-        <p><%= @order.shipping_address %></p>
-        <p>Method: <%= @order.shipping_method %></p>
-      </div>
     </div>
   </div>
 </div>
