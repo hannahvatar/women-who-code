@@ -51,7 +51,7 @@ class OrdersController < ApplicationController
 
   def calculate_total_amount
     quantity = (params[:quantity] || 1).to_i
-    @variant.price * quantity
+    @variant.product.base_price * quantity  # Make sure you're using base_price if that's what you use in the product page
   end
 
   def create_order_item

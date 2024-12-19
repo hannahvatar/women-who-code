@@ -1,13 +1,13 @@
 <!-- app/views/orders/new.html.erb -->
 <div class="checkout-container">
   <div class="order-summary">
-    <h2 class="summary-title">Order Summary</h2>
-    <p>Product: <%= @variant.product.name %></p>
-    <p>Color: <%= @variant.color.name %></p>
-    <p>Size: <%= @variant.size.name %></p>
-    <p>Quantity: <%= params[:quantity] || 1 %></p>
-    <p class="total-amount">Total: <%= number_to_currency(@total_amount) %></p>
-  </div>
+  <h2 class="summary-title">Order Summary</h2>
+  <p>Product: <%= @variant.product.name %></p>
+  <p>Color: <%= @variant.color.name %></p>
+  <p>Size: <%= @variant.size.name %></p>
+  <p>Quantity: <%= params[:quantity] || 1 %></p>
+  <p class="total-amount">Total: <%= number_to_currency(@total_amount) %></p>
+</div>
 
   <%= form_with(model: @order, local: true, class: "order-form") do |f| %>
     <% if @order.errors.any? %>
