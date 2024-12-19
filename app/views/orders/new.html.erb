@@ -1,20 +1,19 @@
 <!-- app/views/orders/new.html.erb -->
-<div class="container mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-6">Checkout</h1>
+<div class="checkout-container">
+  <h1 class="checkout-title">Checkout</h1>
 
-  <!-- Show order summary -->
-  <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-    <h2 class="text-xl font-semibold mb-2">Order Summary</h2>
+  <div class="order-summary">
+    <h2 class="summary-title">Order Summary</h2>
     <p>Product: <%= @variant.product.name %></p>
     <p>Color: <%= @variant.color.name %></p>
     <p>Size: <%= @variant.size.name %></p>
     <p>Quantity: <%= params[:quantity] || 1 %></p>
-    <p class="font-bold mt-2">Total: <%= number_to_currency(@total_amount) %></p>
+    <p class="total-amount">Total: <%= number_to_currency(@total_amount) %></p>
   </div>
 
-  <%= form_with(model: @order, local: true, class: "max-w-lg") do |f| %>
+  <%= form_with(model: @order, local: true, class: "order-form") do |f| %>
     <% if @order.errors.any? %>
-      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      <div class="error-container">
         <ul>
           <% @order.errors.full_messages.each do |message| %>
             <li><%= message %></li>
@@ -23,34 +22,34 @@
       </div>
     <% end %>
 
-    <div class="mb-4">
-      <%= f.label :email, class: "block text-gray-700 text-sm font-bold mb-2" %>
-      <%= f.email_field :email, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    <div class="form-group">
+      <%= f.label :email, class: "form-label" %>
+      <%= f.email_field :email, class: "form-input" %>
     </div>
 
-    <div class="mb-4">
-      <%= f.label :shipping_address, class: "block text-gray-700 text-sm font-bold mb-2" %>
-      <%= f.text_area :shipping_address, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    <div class="form-group">
+      <%= f.label :shipping_address, class: "form-label" %>
+      <%= f.text_area :shipping_address, class: "form-input" %>
     </div>
 
-    <div class="mb-4">
-      <%= f.label :phone_number, class: "block text-gray-700 text-sm font-bold mb-2" %>
-      <%= f.telephone_field :phone_number, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    <div class="form-group">
+      <%= f.label :phone_number, class: "form-label" %>
+      <%= f.telephone_field :phone_number, class: "form-input" %>
     </div>
 
-    <div class="mb-4">
-      <%= f.label :shipping_method, class: "block text-gray-700 text-sm font-bold mb-2" %>
+    <div class="form-group">
+      <%= f.label :shipping_method, class: "form-label" %>
       <%= f.select :shipping_method,
           ['Standard', 'Express'],
           {},
-          class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+          class: "form-select" %>
     </div>
 
     <%= hidden_field_tag :variant_id, params[:variant_id] %>
     <%= hidden_field_tag :quantity, params[:quantity] || 1 %>
 
-    <div class="flex items-center justify-between">
-      <%= f.submit "Place Order", class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+    <div class="form-actions">
+      <%= f.submit "Place Order", class: "submit-button" %>
     </div>
   <% end %>
 </div>
