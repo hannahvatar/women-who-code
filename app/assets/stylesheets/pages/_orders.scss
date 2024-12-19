@@ -1,10 +1,12 @@
 @import "config/colors";
 
 .checkout-container {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 800px;
+  margin: 40px auto;
   padding: 2rem 2rem;
   background-color: $yellow-200;
+  border-radius: 8px;
+
 }
 
 .checkout-title {
