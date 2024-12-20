@@ -2,6 +2,8 @@ class Order < ApplicationRecord
   has_many :order_items
   has_many :product_variants, through: :order_items
 
+  attribute :error_message, :string
+
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :first_name, presence: true
   validates :last_name, presence: true
@@ -14,6 +16,7 @@ class Order < ApplicationRecord
   validates :total_amount, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :payment_status, presence: true
   validates :shipping_method, presence: true
+  validates :state, presence: true, unless: -> { country.in?(['AQ', 'NL', 'SJ', 'BR']) }
 
   def full_address
     [

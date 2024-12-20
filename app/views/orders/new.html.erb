@@ -1,13 +1,12 @@
-<!-- app/views/orders/new.html.erb -->
 <div class="checkout-container">
   <div class="order-summary">
-  <h2 class="summary-title">Order Summary</h2>
-  <p>Product: <%= @variant.product.name %></p>
-  <p>Color: <%= @variant.color.name %></p>
-  <p>Size: <%= @variant.size.name %></p>
-  <p>Quantity: <%= params[:quantity] || 1 %></p>
-  <p class="total-amount">Total: <%= number_to_currency(@total_amount) %></p>
-</div>
+    <h2 class="summary-title">Order Summary</h2>
+    <p>Product: <%= @variant.product.name %></p>
+    <p>Color: <%= @variant.color.name %></p>
+    <p>Size: <%= @variant.size.name %></p>
+    <p>Quantity: <%= params[:quantity] || 1 %></p>
+    <p class="total-amount">Total: <%= number_to_currency(@total_amount) %></p>
+  </div>
 
   <%= form_with(model: @order, local: true, class: "order-form") do |f| %>
     <% if @order.errors.any? %>
@@ -19,6 +18,18 @@
         </ul>
       </div>
     <% end %>
+
+    <div class="form-row name-fields">
+      <div class="form-group">
+        <%= f.label :first_name, "First Name", class: "form-label" %>
+        <%= f.text_field :first_name, class: "form-input", placeholder: "John" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :last_name, "Last Name", class: "form-label" %>
+        <%= f.text_field :last_name, class: "form-input", placeholder: "Doe" %>
+      </div>
+    </div>
 
     <div class="form-group">
       <%= f.label :email, class: "form-label" %>
@@ -35,14 +46,21 @@
       <%= f.text_field :apartment, class: "form-input", placeholder: "Apt 4B" %>
     </div>
 
-    <div class="form-group">
-      <%= f.label :city, "City", class: "form-label" %>
-      <%= f.text_field :city, class: "form-input", placeholder: "Montreal" %>
-    </div>
+    <div class="form-row address-fields">
+      <div class="form-group">
+        <%= f.label :city, "City", class: "form-label" %>
+        <%= f.text_field :city, class: "form-input", placeholder: "Montreal" %>
+      </div>
 
-    <div class="form-group">
-      <%= f.label :postal_code, "Postal Code", class: "form-label" %>
-      <%= f.text_field :postal_code, class: "form-input", placeholder: "H2X 2B7" %>
+      <div class="form-group">
+        <%= f.label :state, "State/Province", class: "form-label" %>
+        <%= f.text_field :state, class: "form-input", placeholder: "Quebec" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :postal_code, "Postal Code", class: "form-label" %>
+        <%= f.text_field :postal_code, class: "form-input", placeholder: "H2X 2B7" %>
+      </div>
     </div>
 
     <div class="form-group">

@@ -8,40 +8,15 @@ class OrdersController < ApplicationController
 
   def create
     @order = Order.new(order_params)
-    @total_amount = calculate_total_amount
-
-    # Set default values for required fields
+    @order.total_amount = calculate_total_amount
     @order.order_status = 'pending'
     @order.payment_status = 'pending'
-    @order.total_amount = @total_amount
 
     if @order.save
       create_order_item
-      begin
-        # Create order in Printify
-        printify_response = create_printify_order
-
-        if printify_response.code == 200
-          # Update order with Printify ID
-          @order.update(printify_order_id: JSON.parse(printify_response.body)["id"])
-          redirect_to @order, notice: 'Order was successfully created.'
-        else
-          # Log the error for debugging
-          Rails.logger.error("Printify API Error: #{printify_response.body}")
-          # Handle Printify order creation failure
-          @order.destroy # Rollback our local order
-          flash.now[:alert] = 'There was an issue creating your order with our printing partner.'
-          render :new, status: :unprocessable_entity
-        end
-      rescue => e
-        # Log any unexpected errors
-        Rails.logger.error("Printify Order Creation Error: #{e.message}")
-        @order.destroy
-        flash.now[:alert] = 'An unexpected error occurred while processing your order.'
-        render :new, status: :unprocessable_entity
-      end
+      send_to_printify
     else
-      render :new, status: :unprocessable_entity
+      render_new_with_errors
     end
   end
 
@@ -59,16 +34,8 @@ class OrdersController < ApplicationController
 
   def order_params
     params.require(:order).permit(
-      :first_name,
-      :last_name,
-      :email,
-      :street_address,
-      :apartment,
-      :city,
-      :postal_code,
-      :country,
-      :phone_number,
-      :shipping_method
+      :first_name, :last_name, :email, :street_address, :apartment,
+      :city, :state, :postal_code, :country, :phone_number, :shipping_method
     )
   end
 
@@ -86,30 +53,28 @@ class OrdersController < ApplicationController
     )
   end
 
-  def create_printify_order
-    service = PrintifyService.new
+  def send_to_printify
+    printify_service = PrintifyService.new
+    printify_result = printify_service.send_order_to_printify(@order, test_mode: Rails.env.development?)
 
-    printify_order_data = {
-      external_id: @order.id.to_s,
-      shipping_method: @order.shipping_method || 1,
-      line_items: [{
-        product_id: @variant.product.printify_id,
-        variant_id: @variant.printify_variant_id,
-        quantity: @order.order_items.first.quantity
-      }],
-      shipping_address: {
-        first_name: @order.first_name,
-        last_name: @order.last_name,
-        address1: @order.street_address,
-        address2: @order.apartment.presence,
-        city: @order.city,
-        country: @order.country,
-        zip: @order.postal_code,
-        phone: @order.phone_number,
-        email: @order.email
-      }
-    }
+    Rails.logger.info "Printify Result: #{printify_result.inspect}"
 
-    service.create_order(printify_order_data)
+    if printify_result[:success]
+      redirect_to @order, notice: 'Order was successfully created and sent to Printify.'
+    else
+      handle_printify_error(printify_result[:error])
+    end
+  end
+
+  def handle_printify_error(error_message)
+    @order.errors.add(:base, "Printify Error: #{error_message}")
+    @order.update(order_status: 'failed')
+    render_new_with_errors
+  end
+
+  def render_new_with_errors
+    flash.now[:alert] = 'There was an issue creating your order.'
+    @total_amount = calculate_total_amount
+    render :new, status: :unprocessable_entity
   end
 end
