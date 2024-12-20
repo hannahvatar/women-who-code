@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_12_19_184239) do
+ActiveRecord::Schema[7.1].define(version: 2024_12_20_140208) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -57,6 +57,36 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_19_184239) do
     t.string "country"
   end
 
+  create_table "printify_products", force: :cascade do |t|
+    t.string "printify_id"
+    t.bigint "printify_shop_id"
+    t.string "title"
+    t.text "description"
+    t.decimal "price", precision: 10, scale: 2
+    t.boolean "is_locked"
+    t.json "variants"
+    t.json "print_areas"
+    t.json "print_details"
+    t.string "blueprint_id"
+    t.integer "print_provider_id"
+    t.json "images"
+    t.string "tags", array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["blueprint_id"], name: "index_printify_products_on_blueprint_id"
+    t.index ["printify_id"], name: "index_printify_products_on_printify_id", unique: true
+    t.index ["printify_shop_id"], name: "index_printify_products_on_printify_shop_id"
+  end
+
+  create_table "printify_shops", force: :cascade do |t|
+    t.string "printify_shop_id"
+    t.string "title"
+    t.string "sales_channel"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["printify_shop_id"], name: "index_printify_shops_on_printify_shop_id", unique: true
+  end
+
   create_table "product_variants", force: :cascade do |t|
     t.bigint "product_id", null: false
     t.bigint "color_id", null: false
@@ -66,6 +96,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_19_184239) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "image_url"
+    t.string "printify_variant_id"
+    t.string "sku"
     t.index ["color_id"], name: "index_product_variants_on_color_id"
     t.index ["product_id"], name: "index_product_variants_on_product_id"
     t.index ["size_id"], name: "index_product_variants_on_size_id"
@@ -77,6 +109,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_19_184239) do
     t.decimal "base_price", precision: 10, scale: 2, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "printify_id"
+    t.json "printify_images"
   end
 
   create_table "sizes", force: :cascade do |t|
@@ -100,6 +134,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_19_184239) do
 
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "product_variants"
+  add_foreign_key "printify_products", "printify_shops"
   add_foreign_key "product_variants", "colors"
   add_foreign_key "product_variants", "products"
   add_foreign_key "product_variants", "sizes"

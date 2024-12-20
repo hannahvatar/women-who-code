@@ -54,6 +54,9 @@ gem "sassc-rails"
 # Geocoder gem for handling geolocation and currencies
 gem 'geocoder'
 
+# For making API requests
+gem 'httparty'
+
 group :development, :test do
   gem "dotenv-rails"
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

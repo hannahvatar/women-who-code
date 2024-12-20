@@ -1,0 +1,23 @@
+<div class="container">
+  <h1 class="text-center my-4">Our Products</h1>
+
+  <div class="row">
+    <% @products.each do |product| %>
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <% if product.product_variants.first&.image_url.present? %>
+            <%= image_tag product.product_variants.first.image_url, class: "card-img-top", alt: product.name %>
+          <% end %>
+
+          <div class="card-body">
+            <h5 class="card-title"><%= product.name %></h5>
+            <p class="card-text">
+              <%= format_price(product.base_price) %>
+            </p>
+            <%= link_to "View Details", product_path(product), class: "button" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

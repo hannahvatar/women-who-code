@@ -2,14 +2,14 @@
   <div class="bloc-01">
     <img
       id="main-product-image"
-      src="<%= @product.product_variants.first.image_url %>"
+      src="https://res.cloudinary.com/diwuyv3c8/image/upload/v1734458159/sweater_blue_anl1zo.jpg"
       alt="<%= @product.name %>"
     >
   </div>
 
   <div class="bloc-02">
     <h1><%= @product.name %></h1>
-    <p class="product-description"><%= @product.description %></p>
+    <p class="product-description"><%= @product.description.html_safe %></p>
 
     <div class="squiggly-svg">
       <svg viewBox="0 0 100 15" preserveAspectRatio="none" width="100%" height="100%">
@@ -37,24 +37,39 @@
 
     <p class="product-description">Colors</p>
     <div class="swatches">
-      <% @colors.each do |color| %>
-        <button
-          data-color-id="<%= color.id %>"
-          data-image-url="<%= @product.product_variants.find_by(color: color)&.image_url %>"
-          class="color-select">
-          <%= image_tag "swatch-#{color.name.downcase}.svg", alt: color.name %>
-        </button>
-      <% end %>
+      <button
+        data-color-id="<%= @colors.find_by(name: 'Flo Blue')&.id %>"
+        data-image-url="https://res.cloudinary.com/diwuyv3c8/image/upload/v1734458159/sweater_blue_anl1zo.jpg"
+        class="color-select selected">
+        <%= image_tag "swatch-blue.svg", alt: "Flo Blue" %>
+      </button>
+      <button
+        data-color-id="<%= @colors.find_by(name: 'Violet')&.id %>"
+        data-image-url="https://res.cloudinary.com/diwuyv3c8/image/upload/v1734458160/sweater_purple_zixn0s.jpg"
+        class="color-select">
+        <%= image_tag "swatch-purple.svg", alt: "Violet" %>
+      </button>
+      <button
+        data-color-id="<%= @colors.find_by(name: 'Watermelon')&.id %>"
+        data-image-url="https://res.cloudinary.com/diwuyv3c8/image/upload/v1734458159/sweater_coral_dsso00.jpg"
+        class="color-select">
+        <%= image_tag "swatch-coral.svg", alt: "Watermelon" %>
+      </button>
+      <button
+        data-color-id="<%= @colors.find_by(name: 'Crimson')&.id %>"
+        data-image-url="https://res.cloudinary.com/diwuyv3c8/image/upload/v1734458159/sweater_crimson_kplpcr.jpg"
+        class="color-select">
+        <%= image_tag "swatch-crimson.svg", alt: "Crimson" %>
+      </button>
     </div>
 
-    <p class="product-description">Select sizes</p>
-    <%= link_to "Size guide", "#", class: "size-guide-link" %>
+    <p class="product-description">Select size</p>
     <div class="sizes">
       <% @sizes.each do |size| %>
         <button
           data-size-id="<%= size.id %>"
           class="size-button">
-          <%= size.name.downcase %>
+          <%= size.name %>
         </button>
       <% end %>
     </div>
