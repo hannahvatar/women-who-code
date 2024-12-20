@@ -1,4 +1,3 @@
-# app/controllers/orders_controller.rb
 class OrdersController < ApplicationController
   before_action :set_variant, only: [:new, :create]
 
@@ -18,7 +17,29 @@ class OrdersController < ApplicationController
 
     if @order.save
       create_order_item
-      redirect_to @order, notice: 'Order was successfully created.'
+      begin
+        # Create order in Printify
+        printify_response = create_printify_order
+
+        if printify_response.code == 200
+          # Update order with Printify ID
+          @order.update(printify_order_id: JSON.parse(printify_response.body)["id"])
+          redirect_to @order, notice: 'Order was successfully created.'
+        else
+          # Log the error for debugging
+          Rails.logger.error("Printify API Error: #{printify_response.body}")
+          # Handle Printify order creation failure
+          @order.destroy # Rollback our local order
+          flash.now[:alert] = 'There was an issue creating your order with our printing partner.'
+          render :new, status: :unprocessable_entity
+        end
+      rescue => e
+        # Log any unexpected errors
+        Rails.logger.error("Printify Order Creation Error: #{e.message}")
+        @order.destroy
+        flash.now[:alert] = 'An unexpected error occurred while processing your order.'
+        render :new, status: :unprocessable_entity
+      end
     else
       render :new, status: :unprocessable_entity
     end
@@ -38,6 +59,8 @@ class OrdersController < ApplicationController
 
   def order_params
     params.require(:order).permit(
+      :first_name,
+      :last_name,
       :email,
       :street_address,
       :apartment,
@@ -51,7 +74,7 @@ class OrdersController < ApplicationController
 
   def calculate_total_amount
     quantity = (params[:quantity] || 1).to_i
-    @variant.product.base_price * quantity  # Make sure you're using base_price if that's what you use in the product page
+    @variant.product.base_price * quantity
   end
 
   def create_order_item
@@ -61,5 +84,32 @@ class OrdersController < ApplicationController
       quantity: (params[:quantity] || 1).to_i,
       unit_price: @variant.price
     )
+  end
+
+  def create_printify_order
+    service = PrintifyService.new
+
+    printify_order_data = {
+      external_id: @order.id.to_s,
+      shipping_method: @order.shipping_method || 1,
+      line_items: [{
+        product_id: @variant.product.printify_id,
+        variant_id: @variant.printify_variant_id,
+        quantity: @order.order_items.first.quantity
+      }],
+      shipping_address: {
+        first_name: @order.first_name,
+        last_name: @order.last_name,
+        address1: @order.street_address,
+        address2: @order.apartment.presence,
+        city: @order.city,
+        country: @order.country,
+        zip: @order.postal_code,
+        phone: @order.phone_number,
+        email: @order.email
+      }
+    }
+
+    service.create_order(printify_order_data)
   end
 end

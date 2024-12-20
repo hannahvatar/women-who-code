@@ -1,9 +1,10 @@
-# app/models/order.rb
 class Order < ApplicationRecord
   has_many :order_items
   has_many :product_variants, through: :order_items
 
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :first_name, presence: true
+  validates :last_name, presence: true
   validates :street_address, presence: true
   validates :city, presence: true
   validates :postal_code, presence: true
@@ -22,5 +23,9 @@ class Order < ApplicationRecord
       postal_code,
       country
     ].compact.join(", ")
+  end
+
+  def full_name
+    "#{first_name} #{last_name}".strip
   end
 end
