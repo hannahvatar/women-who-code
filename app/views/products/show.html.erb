@@ -94,6 +94,41 @@ document.addEventListener('DOMContentLoaded', function() {
   const variantIdField = document.getElementById('selected_variant_id');
   const mainImage = document.getElementById('main-product-image');
 
+  // Mapping of variant IDs to Printify image URLs
+  const productImages = {
+    // Flo Blue variants
+    '58': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96869/99007/193e573fc60.jpg',
+    '59': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96870/99007/193e573fc60.jpg',
+    '60': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96871/99007/193e573fc60.jpg',
+    '61': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96872/99007/193e573fc60.jpg',
+    '62': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96873/99007/193e573fc60.jpg',
+    '63': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/102366/99007/193e573fc60.jpg',
+
+    // Violet variants
+    '64': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96909/99007/193e573fc60.jpg',
+    '65': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96910/99007/193e573fc60.jpg',
+    '66': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96911/99007/193e573fc60.jpg',
+    '67': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96912/99007/193e573fc60.jpg',
+    '68': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96913/99007/193e573fc60.jpg',
+    '69': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/102374/99007/193e573fc60.jpg',
+
+    // Watermelon variants
+    '70': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96914/99007/193e573fc60.jpg',
+    '71': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96915/99007/193e573fc60.jpg',
+    '72': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96916/99007/193e573fc60.jpg',
+    '73': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96917/99007/193e573fc60.jpg',
+    '74': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96918/99007/193e573fc60.jpg',
+    '75': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/102375/99007/193e573fc60.jpg',
+
+    // Crimson variants
+    '76': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96859/99007/193e573fc60.jpg',
+    '77': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96860/99007/193e573fc60.jpg',
+    '78': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96861/99007/193e573fc60.jpg',
+    '79': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96862/99007/193e573fc60.jpg',
+    '80': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96863/99007/193e573fc60.jpg',
+    '81': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/102364/99007/193e573fc60.jpg'
+  };
+
   // Color selection
   document.querySelectorAll('.color-select').forEach(button => {
     button.addEventListener('click', function() {
@@ -130,6 +165,12 @@ document.addEventListener('DOMContentLoaded', function() {
           if (data.available) {
             addToCartButton.disabled = false;
             variantIdField.value = data.id;
+
+            // Update image based on variant ID
+            if (productImages[data.id]) {
+              mainImage.src = productImages[data.id];
+            }
+
             addToCartButton.classList.remove('disabled');
           } else {
             addToCartButton.disabled = true;

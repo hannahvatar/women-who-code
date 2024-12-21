@@ -12,6 +12,9 @@ class OrdersController < ApplicationController
     @order.order_status = 'pending'
     @order.payment_status = 'pending'
 
+    Rails.logger.info "Selected variant details: #{@variant.attributes}"
+    Rails.logger.info "Printify variant ID: #{@variant.printify_variant_id}"
+
     if @order.save
       create_order_item
       send_to_printify
@@ -28,9 +31,11 @@ class OrdersController < ApplicationController
 
   def set_variant
     @variant = ProductVariant.find(params[:variant_id])
+    Rails.logger.debug "Loaded variant: #{@variant.inspect}"
   rescue ActiveRecord::RecordNotFound
     redirect_to root_path, alert: 'Product variant not found'
   end
+
 
   def order_params
     params.require(:order).permit(

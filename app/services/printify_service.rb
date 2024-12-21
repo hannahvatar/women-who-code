@@ -68,13 +68,24 @@ class PrintifyService
     Rails.logger.info "Product data keys: #{product_data.keys}"
     Rails.logger.info "Print providers: #{product_data['print_providers']&.inspect}"
 
-    {
+    line_item = prepare_line_item(order_item, product_data, product_variant)
+
+    # Add print areas to the line item
+    print_areas = prepare_print_areas(product_data, product_variant)
+    line_item[:print_areas] = print_areas
+
+    order_data = {
       external_id: order.id.to_s,
       label: "#{order.first_name} #{order.last_name}",
-      line_items: [prepare_line_item(order_item, product_data, product_variant)],
+      line_items: [line_item],
       shipping_method: get_shipping_method(order.shipping_method),
       recipients: [prepare_recipient(order)]
     }
+
+    # Log order data to inspect structure before sending to Printify
+    Rails.logger.info "Prepared Printify order data: #{order_data.to_json}"
+
+    order_data
   end
 
   def send_order_to_printify(order, test_mode: false)
@@ -116,46 +127,59 @@ class PrintifyService
   end
 
   def prepare_line_item(order_item, product_data, product_variant)
-    Rails.logger.info "Preparing line item for product: #{product_data['id']}"
-    Rails.logger.info "Using print_provider_id: #{product_data['print_provider_id']}"
-    Rails.logger.info "Using blueprint_id: #{product_data['blueprint_id']}"
-    Rails.logger.info "Using variant_id from product_variant: #{product_variant.printify_variant_id}"
+    Rails.logger.info "Preparing line item with:"
+    Rails.logger.info "- Product variant: #{product_variant.attributes}"
+    Rails.logger.info "- Product data: #{product_data.slice('id', 'print_provider_id', 'blueprint_id').inspect}"
 
-    unless product_data['print_provider_id']
-      raise "Missing print_provider_id for product #{product_data['id']}"
+    unless product_variant.printify_variant_id
+      raise "Missing printify_variant_id for product variant #{product_variant.id}"
     end
 
     {
       print_provider_id: product_data['print_provider_id'],
       blueprint_id: product_data['blueprint_id'],
       variant_id: product_variant.printify_variant_id,
-      quantity: order_item.quantity,
-      print_areas: prepare_print_areas(product_data, product_variant)
+      quantity: order_item.quantity
     }
   end
 
   def prepare_print_areas(product_data, product_variant)
-    product_data['print_areas'].map do |area|
-      next unless area['variant_ids'].include?(product_variant.printify_variant_id.to_s)
+    Rails.logger.info "Product print areas: #{product_data['print_areas'].inspect}"
+    Rails.logger.info "Product variant ID being checked: #{product_variant.printify_variant_id}"
 
-      {
+    # Find the first print area
+    print_area = product_data['print_areas'].first
+
+    # Prepare a standard print area if exists
+    if print_area
+      prepared_area = {
         variant_ids: [product_variant.printify_variant_id],
-        placeholders: prepare_placeholders(area)
+        placeholders: prepare_placeholders(print_area)
       }
-    end.compact
+
+      Rails.logger.info "Prepared print area: #{prepared_area.inspect}"
+      [prepared_area]
+    else
+      Rails.logger.warn "No print areas found for the product"
+      []
+    end
   end
 
   def prepare_placeholders(area)
-    area['placeholders'].map do |placeholder|
+    Rails.logger.info "Preparing placeholders for area: #{area.inspect}"
+    placeholders = area['placeholders'].map do |placeholder|
       {
         position: placeholder['position'],
         images: prepare_images(placeholder)
       }
     end
+    Rails.logger.info "Prepared placeholders: #{placeholders.inspect}"
+    placeholders
   end
 
   def prepare_images(placeholder)
-    placeholder['images'].map do |image|
+    Rails.logger.info "Preparing images for placeholder: #{placeholder.inspect}"
+    images = placeholder['images'].map do |image|
       {
         id: image['id'],
         src: image['src'],
@@ -165,6 +189,8 @@ class PrintifyService
         angle: 0
       }
     end
+    Rails.logger.info "Prepared images: #{images.inspect}"
+    images
   end
 
   def get_shipping_method(method)
