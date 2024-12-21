@@ -8,11 +8,20 @@
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <script src="https://unpkg.com/feather-icons"></script>
   </head>
 
-  <body><%= render "shared/navbar" %>
-<%= render "shared/flashes" %>
+  <body>
+    <%= render "shared/navbar" %>
+    <%= render "shared/flashes" %>
 
     <%= yield %>
+
+    <!-- Initialize Feather icons -->
+    <script>
+      document.addEventListener('turbo:load', () => {
+        feather.replace();
+      });
+    </script>
   </body>
 </html>

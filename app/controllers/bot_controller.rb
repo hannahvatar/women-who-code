@@ -1,37 +1,66 @@
 class BotController < ApplicationController
+  skip_before_action :verify_authenticity_token, only: [:ask]  # Only if needed for testing
+
+  def show
+    Rails.logger.info "==== Bot Controller: Show Action Called ===="
+  end
+
   def ask
+    Rails.logger.info "==== Bot Controller: Ask Action Started ===="
+    Rails.logger.info "Params received: #{params.inspect}"
+
     user_question = params[:question]
-    Rails.logger.info "User Question: #{user_question}"
+    Rails.logger.info "User question: #{user_question}"
 
     begin
       if user_question.present? && user_question.match?(/future|destiny|will|tomorrow|what's next/i)
+        Rails.logger.info "Question is about the future, calling OpenAI..."
         @answer = get_openai_response(user_question)
+        Rails.logger.info "OpenAI response received: #{@answer}"
       elsif user_question.present?
         @answer = "Ask me something about your future!"
+        Rails.logger.info "Non-future related question"
       else
         @answer = nil
+        Rails.logger.info "No question provided"
       end
 
-      Rails.logger.info "Final Answer: #{@answer}"
+      Rails.logger.info "Sending response: #{@answer}"
+
+      # Handle both console testing and web requests
+      if request.present? && request.format.json?
+        render json: { answer: @answer }
+      else
+        @answer
+      end
 
     rescue => e
-      Rails.logger.error "Error in ask action: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
-      @answer = "Sorry, there was an error processing your question."
+      Rails.logger.error "==== ERROR in Bot Controller ===="
+      Rails.logger.error "Error class: #{e.class}"
+      Rails.logger.error "Error message: #{e.message}"
+
+      error_response = "Sorry, there was an error processing your question."
+
+      if request.present? && request.format.json?
+        render json: { answer: error_response }, status: :internal_server_error
+      else
+        error_response
+      end
     end
   end
 
   private
 
   def get_openai_response(question)
+    Rails.logger.info "==== Starting OpenAI Request ===="
     begin
-      # Log the API key presence (not the actual key)
       api_key = Rails.application.credentials.openai[:api_key]
-      Rails.logger.info "API Key check - Key exists?: #{api_key.present?}"
+      Rails.logger.info "API Key present?: #{api_key.present?}"
 
       client = OpenAI::Client.new(access_token: api_key)
-      Rails.logger.info "Client initialized successfully"
+      Rails.logger.info "Client initialized"
 
+      # Define request parameters
       request_params = {
         parameters: {
           model: "gpt-3.5-turbo",
@@ -49,44 +78,41 @@ class BotController < ApplicationController
           max_tokens: 150
         }
       }
-      Rails.logger.info "Sending request with parameters: #{request_params.inspect}"
 
-      begin
-        response = client.chat(**request_params)
-        Rails.logger.info "API call successful, response received"
-      rescue Faraday::TooManyRequestsError => e
-        Rails.logger.error "Rate limit exceeded: #{e.message}"
-        return "The fortune teller is taking a short break due to high demand. Please try again in a few minutes! 🔮✨"
-      rescue => e
-        Rails.logger.error "API call failed: #{e.class} - #{e.message}"
-        raise
-      end
+      Rails.logger.info "Making API request to OpenAI..."
 
-      # Process response
+      response = client.chat(**request_params)
+      Rails.logger.info "Raw OpenAI response: #{response.inspect}"
+
       if response.nil?
-        Rails.logger.error "Response was nil"
+        Rails.logger.error "Received nil response from OpenAI"
         return "The crystal ball is clouded. Try again!"
       end
-
-      Rails.logger.info "Full response structure: #{response.inspect}"
 
       content = response.dig("choices", 0, "message", "content")
       Rails.logger.info "Extracted content: #{content.inspect}"
 
-      return content || "The stars are misaligned. Ask again!"
+      if content.nil?
+        Rails.logger.error "Could not extract content from response"
+        return "The stars are misaligned. Ask again!"
+      end
+
+      return content
 
     rescue OpenAI::Error => e
       Rails.logger.error "OpenAI API Error: #{e.class} - #{e.message}"
       handle_openai_error(e)
     rescue => e
-      Rails.logger.error "ERROR CLASS: #{e.class}"
-      Rails.logger.error "ERROR MESSAGE: #{e.message}"
-      Rails.logger.error "BACKTRACE: #{e.backtrace.join("\n")}"
+      Rails.logger.error "Unexpected error in OpenAI request: #{e.class} - #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
       "The fortune teller's crystal ball needs maintenance. Check back soon!"
     end
   end
 
   def handle_openai_error(error)
+    Rails.logger.error "==== Handling OpenAI Error ===="
+    Rails.logger.error "Error type: #{error.class}"
+
     case error
     when OpenAI::Error::InvalidRequestError
       "The crystal ball detected an invalid question. Try rephrasing!"
@@ -99,4 +125,4 @@ class BotController < ApplicationController
       "The mystic forces are temporarily unavailable. Try again soon!"
     end
   end
- end
+end
