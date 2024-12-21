@@ -182,3 +182,116 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
+
+<div class="chat-widget" id="chatWidget">
+  <!-- Chat Icon Button -->
+  <button id="chatButton" class="chat-button">
+    <i data-feather="message-circle"></i>
+  </button>
+
+  <!-- Chat Window -->
+  <div id="chatWindow" class="chat-window hidden">
+    <div class="chat-header">
+      <h3>🔮 Mystic Fortune Teller</h3>
+      <button id="closeChat" class="close-button">
+        <i data-feather="x"></i>
+      </button>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <!-- Messages will appear here -->
+    </div>
+
+    <form id="chatForm" class="chat-form">
+      <input type="text"
+             id="userQuestion"
+             placeholder="Ask about your future..."
+             required>
+      <button type="submit">
+        <i data-feather="send"></i>
+      </button>
+    </form>
+  </div>
+</div>
+
+<%= javascript_tag do %>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Feather icons
+    feather.replace();
+
+    const chatButton = document.getElementById('chatButton');
+    const chatWindow = document.getElementById('chatWindow');
+    const closeChat = document.getElementById('closeChat');
+    const chatForm = document.getElementById('chatForm');
+    const chatMessages = document.getElementById('chatMessages');
+    const userInput = document.getElementById('userQuestion');
+
+    // Toggle chat window
+    chatButton.addEventListener('click', () => {
+      chatWindow.classList.toggle('hidden');
+      chatButton.classList.toggle('hidden');
+    });
+
+    // Close chat window
+    closeChat.addEventListener('click', () => {
+      chatWindow.classList.add('hidden');
+      chatButton.classList.remove('hidden');
+    });
+
+    // Handle form submission
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const question = userInput.value;
+      console.log('Submitting question:', question); // Debug log
+
+      if (!question.trim()) return;
+
+      // Add user message
+      addMessage('user', question);
+      userInput.value = '';
+
+      try {
+        const token = document.querySelector('meta[name="csrf-token"]').content;
+        console.log('CSRF Token:', token); // Debug log
+
+        console.log('Sending request to server...'); // Debug log
+        const response = await fetch('/bot/ask', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': token,
+            'Accept': 'application/json'  // Add this line
+          },
+          body: JSON.stringify({ question: question })
+        });
+
+        console.log('Response status:', response.status); // Debug log
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Server response:', data); // Debug log
+
+        if (data.answer) {
+          addMessage('bot', data.answer);
+        } else {
+          throw new Error('No answer in response');
+        }
+      } catch (error) {
+        console.error('Error details:', error); // Debug log
+        addMessage('bot', 'The crystal ball is cloudy. Try again later!');
+      }
+    });
+
+    function addMessage(sender, message) {
+      console.log('Adding message:', { sender, message }); // Debug log
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${sender}-message`;
+      messageDiv.textContent = message;
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  });
+<% end %>

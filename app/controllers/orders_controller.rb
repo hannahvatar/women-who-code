@@ -36,7 +36,6 @@ class OrdersController < ApplicationController
     redirect_to root_path, alert: 'Product variant not found'
   end
 
-
   def order_params
     params.require(:order).permit(
       :first_name, :last_name, :email, :street_address, :apartment,
@@ -59,19 +58,32 @@ class OrdersController < ApplicationController
   end
 
   def send_to_printify
+    Rails.logger.info "Sending order data to Printify: #{@order.to_json}"
+
     printify_service = PrintifyService.new
-    printify_result = printify_service.send_order_to_printify(@order, test_mode: Rails.env.development?)
 
-    Rails.logger.info "Printify Result: #{printify_result.inspect}"
+    # Ensure a timeout is applied in your PrintifyService class as well.
+    begin
+      printify_result = printify_service.send_order_to_printify(@order, test_mode: Rails.env.development?)
 
-    if printify_result[:success]
-      redirect_to @order, notice: 'Order was successfully created and sent to Printify.'
-    else
-      handle_printify_error(printify_result[:error])
+      Rails.logger.info "Printify Result: #{printify_result.inspect}"
+
+      if printify_result[:success]
+        redirect_to @order, notice: 'Order was successfully created and sent to Printify.'
+      else
+        handle_printify_error(printify_result[:error])
+      end
+
+    rescue StandardError => e
+      Rails.logger.error "Error sending order to Printify: #{e.message}"
+      @order.errors.add(:base, "Error sending order to Printify: #{e.message}")
+      @order.update(order_status: 'failed')
+      render_new_with_errors
     end
   end
 
   def handle_printify_error(error_message)
+    Rails.logger.error "Printify Error: #{error_message}"
     @order.errors.add(:base, "Printify Error: #{error_message}")
     @order.update(order_status: 'failed')
     render_new_with_errors
