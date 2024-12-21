@@ -54,6 +54,10 @@ gem "sassc-rails"
 # Geocoder gem for handling geolocation and currencies
 gem 'geocoder'
 
+# For OpenAI
+gem 'openai'
+gem 'ruby-openai'
+
 # For making API requests
 gem 'httparty'
 

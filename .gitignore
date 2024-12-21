@@ -40,3 +40,7 @@
 # Ignore Mac and Linux file system files
 *.swp
 .DS_Store
+
+# Ignore master key for decrypting credentials
+/config/master.key
+/config/credentials.yml.enc
