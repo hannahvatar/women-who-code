@@ -54,8 +54,15 @@ class BotController < ApplicationController
   def get_openai_response(question)
     Rails.logger.info "==== Starting OpenAI Request ===="
     begin
-      api_key = Rails.application.credentials.openai[:api_key]
+      # USE ENV instead of Rails.application.credentials
+      api_key = ENV['OPENAI_API_KEY']
       Rails.logger.info "API Key present?: #{api_key.present?}"
+
+      # Add explicit error if API key is missing
+      unless api_key.present?
+        Rails.logger.error "No OpenAI API key found in environment variables"
+        return "The mystic portal is sealed. No API key detected!"
+      end
 
       client = OpenAI::Client.new(access_token: api_key)
       Rails.logger.info "Client initialized"
