@@ -11,6 +11,17 @@ class ProductVariant < ApplicationRecord
     message: "already has a variant with this color and size" }
   validates :printify_variant_id, uniqueness: true, allow_nil: true
 
+  # app/models/product_variant.rb
+  def printify_color_name
+    color_mapping = {
+      'Flo Blue' => 'Blue',
+      'Watermelon' => 'Coral',
+      'Crimson' => 'Crimson',
+      'Violet' => 'Purple'
+    }
+    color_mapping[color.name] || color.name
+  end
+
   def sync_stock_from_printify
     return unless printify_variant_id.present?
 
@@ -19,11 +30,21 @@ class ProductVariant < ApplicationRecord
 
     if response.success?
       product_data = JSON.parse(response.body)
-      variant_data = product_data["variants"].find { |v| v["id"] == printify_variant_id }
+      puts "Response Body: #{JSON.pretty_generate(product_data)}" # Log the entire response for inspection
+
+      variants = product_data["variants"]
+      puts "Variants: #{variants}"  # Log the variants array to see all the available variants
+
+      variant_data = variants.find { |v| v["id"].to_s == printify_variant_id.to_s }
 
       if variant_data
+        puts "Found variant data: #{variant_data}"
         update!(stock: variant_data["quantity"])
+      else
+        puts "Variant not found in the response."
       end
+    else
+      puts "Error with Printify response: #{response.body}"
     end
   end
 end

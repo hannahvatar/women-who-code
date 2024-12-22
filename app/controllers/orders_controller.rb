@@ -8,17 +8,29 @@ class OrdersController < ApplicationController
 
   def create
     @order = Order.new(order_params)
+    @variant = ProductVariant.find(params[:variant_id])
+
+    # Set total amount explicitly
     @order.total_amount = calculate_total_amount
-    @order.order_status = 'pending'
-    @order.payment_status = 'pending'
 
-    Rails.logger.info "Selected variant details: #{@variant.attributes}"
-    Rails.logger.info "Printify variant ID: #{@variant.printify_variant_id}"
+    begin
+      if @order.save
+        create_order_item
+        send_to_printify
+      else
+        render_new_with_errors
+      end
+    rescue => e
+      # Log the error
+      Rails.logger.error("Order creation failed: #{e.message}")
 
-    if @order.save
-      create_order_item
-      send_to_printify
-    else
+      # Update order status if the order exists
+      @order.update(
+        order_status: 'failed',
+        error_message: e.message
+      ) if @order.persisted?
+
+      # Render error page or redirect
       render_new_with_errors
     end
   end
@@ -45,7 +57,22 @@ class OrdersController < ApplicationController
 
   def calculate_total_amount
     quantity = (params[:quantity] || 1).to_i
-    @variant.product.base_price * quantity
+    unit_price = @variant.price || @variant.product.base_price
+    shipping_cost = calculate_shipping_cost
+
+    (unit_price * quantity + shipping_cost).round(2)
+  end
+
+  def calculate_shipping_cost
+    # Implement shipping cost logic based on shipping method
+    case params[:order]&.dig(:shipping_method)
+    when 'Standard'
+      5.00
+    when 'Express'
+      10.00
+    else
+      0.00
+    end
   end
 
   def create_order_item
@@ -62,7 +89,6 @@ class OrdersController < ApplicationController
 
     printify_service = PrintifyService.new
 
-    # Ensure a timeout is applied in your PrintifyService class as well.
     begin
       printify_result = printify_service.send_order_to_printify(@order, test_mode: Rails.env.development?)
 
@@ -76,16 +102,14 @@ class OrdersController < ApplicationController
 
     rescue StandardError => e
       Rails.logger.error "Error sending order to Printify: #{e.message}"
-      @order.errors.add(:base, "Error sending order to Printify: #{e.message}")
-      @order.update(order_status: 'failed')
-      render_new_with_errors
+      handle_printify_error(e.message)
     end
   end
 
   def handle_printify_error(error_message)
     Rails.logger.error "Printify Error: #{error_message}"
     @order.errors.add(:base, "Printify Error: #{error_message}")
-    @order.update(order_status: 'failed')
+    @order.update(order_status: 'failed', error_message: error_message)
     render_new_with_errors
   end
 
