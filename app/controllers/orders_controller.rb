@@ -4,11 +4,15 @@ class OrdersController < ApplicationController
   def new
     @order = Order.new
     @total_amount = calculate_total_amount
+    Rails.logger.debug "New Order Initialized: #{@order.inspect}, Total: #{@total_amount}"
   end
 
   def create
     @order = Order.new(order_params)
     @variant = ProductVariant.find(params[:variant_id])
+
+    # Debugging logs
+    Rails.logger.debug "Attempting to create order with params: #{order_params.inspect}, Variant: #{@variant.inspect}"
 
     # Set total amount explicitly
     @order.total_amount = calculate_total_amount
@@ -21,22 +25,9 @@ class OrdersController < ApplicationController
         render_new_with_errors
       end
     rescue => e
-      # Log the error
       Rails.logger.error("Order creation failed: #{e.message}")
-
-      # Update order status if the order exists
-      @order.update(
-        order_status: 'failed',
-        error_message: e.message
-      ) if @order.persisted?
-
-      # Render error page or redirect
-      render_new_with_errors
+      handle_order_failure(e.message)
     end
-  end
-
-  def show
-    @order = Order.find(params[:id])
   end
 
   private
@@ -44,7 +35,8 @@ class OrdersController < ApplicationController
   def set_variant
     @variant = ProductVariant.find(params[:variant_id])
     Rails.logger.debug "Loaded variant: #{@variant.inspect}"
-  rescue ActiveRecord::RecordNotFound
+  rescue ActiveRecord::RecordNotFound => e
+    Rails.logger.error "Variant not found: #{e.message}"
     redirect_to root_path, alert: 'Product variant not found'
   end
 
@@ -57,15 +49,17 @@ class OrdersController < ApplicationController
 
   def calculate_total_amount
     quantity = (params[:quantity] || 1).to_i
-    unit_price = @variant.price || @variant.product.base_price
+    unit_price = @variant&.price || @variant&.product&.base_price || 0
     shipping_cost = calculate_shipping_cost
 
-    (unit_price * quantity + shipping_cost).round(2)
+    total = (unit_price * quantity) + shipping_cost
+    Rails.logger.debug "Calculated Total: Quantity: #{quantity}, Unit Price: #{unit_price}, Shipping: #{shipping_cost}, Total: #{total}"
+    total.round(2)
   end
 
   def calculate_shipping_cost
-    # Implement shipping cost logic based on shipping method
-    case params[:order]&.dig(:shipping_method)
+    method = params[:order]&.dig(:shipping_method)
+    case method
     when 'Standard'
       5.00
     when 'Express'
@@ -73,6 +67,9 @@ class OrdersController < ApplicationController
     else
       0.00
     end
+  rescue => e
+    Rails.logger.error "Error calculating shipping cost: #{e.message}"
+    0.00
   end
 
   def create_order_item
@@ -82,6 +79,9 @@ class OrdersController < ApplicationController
       quantity: (params[:quantity] || 1).to_i,
       unit_price: @variant.price
     )
+  rescue => e
+    Rails.logger.error "Error creating order item: #{e.message}"
+    raise
   end
 
   def send_to_printify
@@ -92,18 +92,20 @@ class OrdersController < ApplicationController
     begin
       printify_result = printify_service.send_order_to_printify(@order, test_mode: Rails.env.development?)
 
-      Rails.logger.info "Printify Result: #{printify_result.inspect}"
-
       if printify_result[:success]
         redirect_to @order, notice: 'Order was successfully created and sent to Printify.'
       else
         handle_printify_error(printify_result[:error])
       end
-
-    rescue StandardError => e
+    rescue => e
       Rails.logger.error "Error sending order to Printify: #{e.message}"
       handle_printify_error(e.message)
     end
+  end
+
+  def handle_order_failure(error_message)
+    @order.update(order_status: 'failed', error_message: error_message) if @order.persisted?
+    render_new_with_errors
   end
 
   def handle_printify_error(error_message)
