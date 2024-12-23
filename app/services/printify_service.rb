@@ -182,18 +182,16 @@ PROVIDER_LOCATION = {
     end
 
     def prepare_printify_order(order)
-      validate_order(order)
-
-      order_items = order.order_items.map do |item|
-        line_item = prepare_line_item(item)
-        Rails.logger.info "Prepared line item: #{line_item.inspect}"
-        line_item
+      line_items = order.order_items.includes(:product_variant).map do |item|
+        {
+          product_id: "67618fb75d0f6a015c058749",
+          variant_id: item.product_variant.printify_variant_id,
+          quantity: item.quantity
+        }
       end
 
       data = {
-        external_id: order.id.to_s,
-        label: "Order ##{order.id}",
-        shipping_method: 1,
+        line_items: line_items,
         shipping_address: {
           first_name: order.first_name,
           last_name: order.last_name,
@@ -205,68 +203,34 @@ PROVIDER_LOCATION = {
           address2: order.apartment.presence || "",
           city: order.city,
           zip: order.postal_code
-        },
-        line_items: order_items,
-        send_shipping_notification: false
+        }
       }
 
-      Rails.logger.info "Prepared order data: #{data.inspect}"
+      Rails.logger.info "Printify order data: #{data.to_json}"
       data
     end
 
     def send_order_to_printify(order, test_mode: false)
-      Rails.logger.info "Sending Order to Printify:"
-      Rails.logger.info "Order ID: #{order.id}"
-      Rails.logger.info "Test Mode: #{test_mode}"
-
       begin
         order_data = prepare_printify_order(order)
         order_data[:test_mode] = test_mode
 
-        Rails.logger.info "Full Printify Order Data: #{order_data.to_json}"
+        # Only log essential data
+        Rails.logger.info "Processing order #{order.id}"
+        Rails.logger.info "Line items count: #{order.order_items.count}"
 
         result = create_order(order_data)
+        Rails.logger.info "Printify API call completed"
 
-        if result[:success]
-          printify_order_id = result[:body]['id']
-          order.update(
-            printify_order_id: printify_order_id,
-            order_status: 'processing'
-          )
-
-          {
-            success: true,
-            order_id: printify_order_id
-          }
-        else
-          error_message = result[:error] || "Failed to create Printify order"
-          order.update(
-            order_status: 'failed',
-            error_message: error_message
-          )
-
-          {
-            success: false,
-            error: error_message
-          }
-        end
+        result
       rescue => e
-        Rails.logger.error "Unexpected error in send_order_to_printify: #{e.message}"
-        Rails.logger.error e.backtrace.join("\n")
-
-        order.update(
-          order_status: 'failed',
-          error_message: e.message
-        )
-
-        {
-          success: false,
-          error: e.message
-        }
+        Rails.logger.error "Error: #{e.message}"
+        { success: false, error: e.message }
       end
     end
 
     private
+
 
     def normalize_country_code(country)
       # Add country code normalization
@@ -334,36 +298,11 @@ PROVIDER_LOCATION = {
 
     def prepare_line_item(order_item)
       product_variant = order_item.product_variant
-      printify_variant_id = validate_product_variant(product_variant)
 
       {
-        variant_id: printify_variant_id.to_s,
-        quantity: order_item.quantity,
-        print_provider_id: 99,  # Exact provider ID from your docs
-        blueprint_id: 1296,    # As integer, not string
-        print_areas: [
-          {
-            position: "front",
-            images: [
-              {
-                id: "67618f64170218383882fad6",
-                name: "wwc-artwork-v01.svg",
-                type: "image/png",
-                height: 3073,
-                width: 4069,
-                x: 0.5,
-                y: 0.5,
-                scale: 0.9012063391941969,
-                angle: 0,
-                src: "https://pfy-prod-image-storage.s3.us-east-2.amazonaws.com/17651141/bb6ff1b1-8377-4485-ad9f-0e601666cb15"
-              }
-            ]
-          },
-          {
-            position: "back",
-            images: []
-          }
-        ]
+        product_id: "67618fb75d0f6a015c058749",
+        variant_id: product_variant.printify_variant_id,  # Use the stored printify_variant_id
+        quantity: order_item.quantity
       }
     end
 

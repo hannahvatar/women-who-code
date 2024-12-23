@@ -10,17 +10,12 @@ class OrdersController < ApplicationController
   def create
     @order = Order.new(order_params)
     @variant = ProductVariant.find(params[:variant_id])
-
-    # Debugging logs
-    Rails.logger.debug "Attempting to create order with params: #{order_params.inspect}, Variant: #{@variant.inspect}"
-
-    # Set total amount explicitly
     @order.total_amount = calculate_total_amount
 
     begin
       if @order.save
         create_order_item
-        send_to_printify
+        handle_printify_order
       else
         render_new_with_errors
       end
@@ -30,7 +25,36 @@ class OrdersController < ApplicationController
     end
   end
 
+  def show
+    @order = Order.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    flash[:error] = "Order not found"
+    redirect_to root_path
+  end
+
   private
+
+  def handle_printify_order
+    printify_service = PrintifyService.new
+    result = printify_service.send_order_to_printify(@order, test_mode: Rails.env.development?)
+
+    if result[:success]
+      redirect_to @order, notice: 'Order was successfully created. Please proceed to payment.'
+    else
+      @order.update(
+        order_status: 'review_needed',
+        error_message: result[:error]
+      )
+      redirect_to @order, alert: 'Order created but needs review. Our team will process it shortly.'
+    end
+  rescue => e
+    Rails.logger.error "Printify Error: #{e.message}"
+    @order.update(
+      order_status: 'review_needed',
+      error_message: e.message
+    )
+    redirect_to @order, alert: 'Order created but needs review. Our team will process it shortly.'
+  end
 
   def set_variant
     @variant = ProductVariant.find(params[:variant_id])
