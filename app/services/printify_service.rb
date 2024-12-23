@@ -127,18 +127,11 @@ PROVIDER_LOCATION = {
 
     def create_order(order_data)
       begin
-        # Add headers explicitly
         headers = {
           'Authorization' => "Bearer #{ENV.fetch('PRINTIFY_API_KEY')}",
           'Content-Type' => 'application/json',
           'Accept' => 'application/json'
         }
-
-        # Log the request details
-        Rails.logger.info "Sending request to Printify:"
-        Rails.logger.info "URL: #{"/shops/#{SHOP_ID}/orders.json"}"
-        Rails.logger.info "Headers: #{headers.reject { |k| k == 'Authorization' }}"
-        Rails.logger.info "Body: #{order_data.to_json}"
 
         response = self.class.post(
           "/shops/#{SHOP_ID}/orders.json",
@@ -147,32 +140,44 @@ PROVIDER_LOCATION = {
           timeout: TIMEOUT
         )
 
-        # Log response details
-        Rails.logger.info "Printify Response Code: #{response.code}"
-        Rails.logger.info "Printify Response Headers: #{response.headers}"
-        Rails.logger.info "Printify Response Body: #{response.body}"
+        Rails.logger.info "Printify API Response:"
+        Rails.logger.info "Status: #{response.code}"
+        Rails.logger.info "Headers: #{response.headers}"
+        Rails.logger.info "Body: #{response.body}"
 
         if response.success?
-          return response
+          parsed_response = JSON.parse(response.body)
+          {
+            success: true,
+            response: response,
+            body: parsed_response
+          }
         else
           error_message = begin
             parsed_response = JSON.parse(response.body)
             parsed_response['message'] || parsed_response['error'] || response.body
           rescue JSON::ParserError
-            "Failed to parse error response: #{response.body}"
+            response.body
           end
 
-          raise PrintifyOrderError.new(
-            message: error_message,
-            status_code: response.code,
-            response_body: response.body,
-            request_data: order_data
-          )
+          Rails.logger.error "Printify Error Response:"
+          Rails.logger.error "Status: #{response.code}"
+          Rails.logger.error "Error: #{error_message}"
+
+          {
+            success: false,
+            error: error_message,
+            status: response.code
+          }
         end
       rescue => e
-        Rails.logger.error "Printify Order Error: #{e.class} - #{e.message}"
-        Rails.logger.error "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
-        raise
+        Rails.logger.error "Printify API Error: #{e.class} - #{e.message}"
+        Rails.logger.error e.backtrace.join("\n")
+        {
+          success: false,
+          error: e.message,
+          status: 500
+        }
       end
     end
 
@@ -210,43 +215,54 @@ PROVIDER_LOCATION = {
     end
 
     def send_order_to_printify(order, test_mode: false)
-      # Extensive logging for debugging
       Rails.logger.info "Sending Order to Printify:"
       Rails.logger.info "Order ID: #{order.id}"
       Rails.logger.info "Test Mode: #{test_mode}"
 
       begin
-        # Prepare order data with comprehensive validation
         order_data = prepare_printify_order(order)
         order_data[:test_mode] = test_mode
 
-        # Log full order data for debugging
         Rails.logger.info "Full Printify Order Data: #{order_data.to_json}"
 
-        # Send order to Printify
-        response = create_order(order_data)
+        result = create_order(order_data)
 
-        # Handle successful or failed order
-        if response.success?
-          handle_successful_order(order, response)
+        if result[:success]
+          printify_order_id = result[:body]['id']
+          order.update(
+            printify_order_id: printify_order_id,
+            order_status: 'processing'
+          )
+
+          {
+            success: true,
+            order_id: printify_order_id
+          }
         else
-          handle_failed_order(order, response)
+          error_message = result[:error] || "Failed to create Printify order"
+          order.update(
+            order_status: 'failed',
+            error_message: error_message
+          )
+
+          {
+            success: false,
+            error: error_message
+          }
         end
-      rescue PrintifyOrderError => e
-        # Handle specific Printify API errors
-        Rails.logger.error "Printify Order Submission Error:"
-        Rails.logger.error "Message: #{e.message}"
-        Rails.logger.error "Status Code: #{e.status_code}"
-        Rails.logger.error "Response Body: #{e.response_body}"
+      rescue => e
+        Rails.logger.error "Unexpected error in send_order_to_printify: #{e.message}"
+        Rails.logger.error e.backtrace.join("\n")
 
-        handle_order_error(order, e)
-      rescue StandardError => e
-        # Catch-all for unexpected errors
-        Rails.logger.error "Unexpected Printify Order Error:"
-        Rails.logger.error "Message: #{e.message}"
-        Rails.logger.error "Backtrace: #{e.backtrace.join("\n")}"
+        order.update(
+          order_status: 'failed',
+          error_message: e.message
+        )
 
-        handle_order_error(order, e)
+        {
+          success: false,
+          error: e.message
+        }
       end
     end
 

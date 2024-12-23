@@ -54,6 +54,9 @@ gem "sassc-rails"
 # Geocoder gem for handling geolocation and currencies
 gem 'geocoder'
 
+# Add Stripe
+gem 'stripe'
+
 # For OpenAI
 gem 'openai'
 gem 'ruby-openai'

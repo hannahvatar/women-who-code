@@ -17,6 +17,12 @@ class Order < ApplicationRecord
   validates :payment_status, presence: true
   validates :shipping_method, presence: true
   validates :state, presence: true, unless: -> { country.in?(['AQ', 'NL', 'SJ', 'BR']) }
+  validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :checkout_session_id, uniqueness: true, allow_nil: true
+
+  def total_amount
+    order_items.sum { |item| item.unit_price * item.quantity }
+  end
 
   def full_address
     [

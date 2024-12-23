@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_12_20_194514) do
+ActiveRecord::Schema[7.1].define(version: 2024_12_23_123556) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -60,6 +60,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_20_194514) do
     t.string "last_name"
     t.string "state"
     t.text "error_message"
+    t.string "checkout_session_id"
+    t.string "payment_intent_id"
   end
 
   create_table "printify_products", force: :cascade do |t|

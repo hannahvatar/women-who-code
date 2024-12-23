@@ -9,6 +9,15 @@
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
     <script src="https://unpkg.com/feather-icons"></script>
+    <!-- Add Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <!-- Add publishable key for Stripe -->
+    <% if Rails.configuration.stripe[:publishable_key] %>
+      <script>
+        const stripe = Stripe('<%= Rails.configuration.stripe[:publishable_key] %>');
+      </script>
+    <% end %>
   </head>
 
   <body>
