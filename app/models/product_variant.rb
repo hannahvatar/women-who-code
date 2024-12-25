@@ -11,6 +11,10 @@ class ProductVariant < ApplicationRecord
     message: "already has a variant with this color and size" }
   validates :printify_variant_id, uniqueness: true, allow_nil: true
 
+  def price
+    product.base_price
+  end
+
   # app/models/product_variant.rb
   def printify_color_name
     color_mapping = {

@@ -81,20 +81,14 @@ class OrdersController < ApplicationController
     total.round(2)
   end
 
-  def calculate_shipping_cost
-    method = params[:order]&.dig(:shipping_method)
-    case method
-    when 'Standard'
-      5.00
-    when 'Express'
-      10.00
-    else
-      0.00
-    end
-  rescue => e
-    Rails.logger.error "Error calculating shipping cost: #{e.message}"
-    0.00
-  end
+# app/controllers/orders_controller.rb
+def calculate_shipping_cost
+  method = params[:order]&.dig(:shipping_method)
+  WomenWhoCode::Config::SHIPPING_PRICES[method] || 0.00
+rescue => e
+  Rails.logger.error "Error calculating shipping cost: #{e.message}"
+  0.00
+end
 
   def create_order_item
     OrderItem.create!(

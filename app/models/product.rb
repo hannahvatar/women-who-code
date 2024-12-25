@@ -8,6 +8,10 @@ class Product < ApplicationRecord
   validates :base_price, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :printify_id, uniqueness: true, allow_nil: true
 
+  def base_price
+    WomenWhoCode::Config::RETAIL_PRICE
+  end
+
   def sync_from_printify(printify_data)
     self.transaction do
       # Update product details
