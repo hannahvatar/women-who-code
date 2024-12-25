@@ -10,7 +10,10 @@ class Order < ApplicationRecord
   validates :street_address, presence: true
   validates :city, presence: true
   validates :postal_code, presence: true
-  validates :country, presence: true
+  validates :country, presence: true, inclusion: {
+    in: %w(CA US FR GB DE IT ES NL BE CH SE NO DK FI IE AT PT GR),
+    message: "is not a supported country"
+  }
   validates :phone_number, presence: true
   validates :order_status, presence: true
   validates :total_amount, presence: true, numericality: { greater_than_or_equal_to: 0 }

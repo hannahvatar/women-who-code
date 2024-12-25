@@ -1,91 +1,128 @@
-<div class="checkout-container">
-  <div class="order-summary">
-    <h2 class="summary-title">Order Summary</h2>
-    <p>Product: <%= @variant.product.name %></p>
-    <p>Color: <%= @variant.color.name %></p>
-    <p>Size: <%= @variant.size.name %></p>
-    <p>Quantity: <%= params[:quantity] || 1 %></p>
-    <p class="total-amount">Total: <%= number_to_currency(@total_amount) %></p>
-  </div>
+<div class="checkout-container" data-controller="shipping">
+ <div class="order-summary">
+   <h2 class="summary-title">Order Summary</h2>
+   <p>Product: <%= @variant.product.name %></p>
+   <p>Color: <%= @variant.color.name %></p>
+   <p>Size: <%= @variant.size.name %></p>
+   <p>Quantity: <%= params[:quantity] || 1 %></p>
+   <p class="total-amount" data-shipping-target="total">
+     Total: <%= number_to_currency(@total_amount) %>
+   </p>
+ </div>
 
-  <%= form_with(model: @order, local: true, class: "order-form") do |f| %>
-    <% if @order.errors.any? %>
-      <div class="error-container">
-        <ul>
-          <% @order.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
+ <%= form_with(model: @order, local: true, class: "order-form") do |f| %>
+   <% if @order.errors.any? %>
+     <div class="error-container">
+       <ul>
+         <% @order.errors.full_messages.each do |message| %>
+           <li><%= message %></li>
+         <% end %>
+       </ul>
+     </div>
+   <% end %>
 
-    <div class="form-row name-fields">
-      <div class="form-group">
-        <%= f.label :first_name, "First Name", class: "form-label" %>
-        <%= f.text_field :first_name, class: "form-input", placeholder: "John" %>
-      </div>
+   <div class="form-row name-fields">
+     <div class="form-group">
+       <%= f.label :first_name, "First Name", class: "form-label" %>
+       <%= f.text_field :first_name, class: "form-input", placeholder: "John" %>
+     </div>
 
-      <div class="form-group">
-        <%= f.label :last_name, "Last Name", class: "form-label" %>
-        <%= f.text_field :last_name, class: "form-input", placeholder: "Doe" %>
-      </div>
-    </div>
+     <div class="form-group">
+       <%= f.label :last_name, "Last Name", class: "form-label" %>
+       <%= f.text_field :last_name, class: "form-input", placeholder: "Doe" %>
+     </div>
+   </div>
 
-    <div class="form-group">
-      <%= f.label :email, class: "form-label" %>
-      <%= f.email_field :email, class: "form-input", placeholder: "email@example.com" %>
-    </div>
+   <div class="form-group">
+     <%= f.label :email, class: "form-label" %>
+     <%= f.email_field :email, class: "form-input", placeholder: "email@example.com" %>
+   </div>
 
-    <div class="form-group">
-      <%= f.label :street_address, "Street Address", class: "form-label" %>
-      <%= f.text_field :street_address, class: "form-input", placeholder: "123 Main Street" %>
-    </div>
+   <div class="form-group">
+     <%= f.label :street_address, "Street Address", class: "form-label" %>
+     <%= f.text_field :street_address, class: "form-input", placeholder: "123 Main Street" %>
+   </div>
 
-    <div class="form-group">
-      <%= f.label :apartment, "Apartment/Suite (optional)", class: "form-label" %>
-      <%= f.text_field :apartment, class: "form-input", placeholder: "Apt 4B" %>
-    </div>
+   <div class="form-group">
+     <%= f.label :apartment, "Apartment/Suite (optional)", class: "form-label" %>
+     <%= f.text_field :apartment, class: "form-input", placeholder: "Apt 4B" %>
+   </div>
 
-    <div class="form-row address-fields">
-      <div class="form-group">
-        <%= f.label :city, "City", class: "form-label" %>
-        <%= f.text_field :city, class: "form-input", placeholder: "Montreal" %>
-      </div>
+   <div class="form-row address-fields">
+     <div class="form-group">
+       <%= f.label :city, "City", class: "form-label" %>
+       <%= f.text_field :city, class: "form-input", placeholder: "Montreal" %>
+     </div>
 
-      <div class="form-group">
-        <%= f.label :state, "State/Province", class: "form-label" %>
-        <%= f.text_field :state, class: "form-input", placeholder: "Quebec" %>
-      </div>
+     <div class="form-group">
+       <%= f.label :state, "State/Province", class: "form-label" %>
+       <%= f.text_field :state, class: "form-input", placeholder: "Quebec" %>
+     </div>
 
-      <div class="form-group">
-        <%= f.label :postal_code, "Postal Code", class: "form-label" %>
-        <%= f.text_field :postal_code, class: "form-input", placeholder: "H2X 2B7" %>
-      </div>
-    </div>
+     <div class="form-group">
+       <%= f.label :postal_code, "Postal Code", class: "form-label" %>
+       <%= f.text_field :postal_code, class: "form-input", placeholder: "H2X 2B7" %>
+     </div>
+   </div>
 
-    <div class="form-group">
-      <%= f.label :country, "Country", class: "form-label" %>
-      <%= f.text_field :country, class: "form-input", placeholder: "Canada" %>
-    </div>
+   <div class="form-group">
+     <%= f.label :country, "Country", class: "form-label" %>
+     <%= f.select :country,
+         [
+           ['Canada', 'CA'],
+           ['United States', 'US'],
+           ['France', 'FR'],
+           ['United Kingdom', 'GB'],
+           ['Germany', 'DE'],
+           ['Italy', 'IT'],
+           ['Spain', 'ES'],
+           ['Netherlands', 'NL'],
+           ['Belgium', 'BE'],
+           ['Switzerland', 'CH'],
+           ['Sweden', 'SE'],
+           ['Norway', 'NO'],
+           ['Denmark', 'DK'],
+           ['Finland', 'FI'],
+           ['Ireland', 'IE'],
+           ['Austria', 'AT'],
+           ['Portugal', 'PT'],
+           ['Greece', 'GR']
+         ],
+         { prompt: "Select a country" },
+         {
+           class: "form-input",
+           data: {
+             shipping_target: "country",
+             action: "change->shipping#updateShippingCost"
+           }
+         }
+     %>
+   </div>
 
-    <div class="form-group">
-      <%= f.label :phone_number, class: "form-label" %>
-      <%= f.telephone_field :phone_number, class: "form-input", placeholder: "(514) 555-0123" %>
-    </div>
+   <div class="form-group">
+     <%= f.label :phone_number, class: "form-label" %>
+     <%= f.telephone_field :phone_number, class: "form-input", placeholder: "(514) 555-0123" %>
+   </div>
 
-    <div class="form-group">
-      <%= f.label :shipping_method, class: "form-label" %>
-      <%= f.select :shipping_method,
-          ['Standard', 'Express'],
-          { prompt: "Select shipping method" },
-          class: "form-select" %>
-    </div>
+   <div class="form-group">
+     <%= f.label :shipping_method, class: "form-label" %>
+     <%= f.select :shipping_method,
+         ['Standard', 'Express'],
+         { prompt: "Select shipping method" },
+         {
+           class: "form-input",
+           data: {
+             shipping_target: "shippingMethod",
+             action: "change->shipping#updateShippingCost"
+           }
+         } %>
+   </div>
 
-    <%= hidden_field_tag :variant_id, params[:variant_id] %>
-    <%= hidden_field_tag :quantity, params[:quantity] || 1 %>
+   <%= hidden_field_tag :variant_id, params[:variant_id] %>
+   <%= hidden_field_tag :quantity, params[:quantity] || 1 %>
 
-    <div class="form-actions">
-      <%= f.submit "Place Order", class: "submit-button" %>
-    </div>
-  <% end %>
+   <div class="form-actions">
+     <%= f.submit "Place Order", class: "submit-button" %>
+   </div>
+ <% end %>
 </div>

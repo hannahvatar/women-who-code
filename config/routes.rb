@@ -8,12 +8,13 @@ Rails.application.routes.draw do
   get 'bot', to: 'bot#show'
   post 'bot/ask', to: 'bot#ask'
 
-  # Order routes
+  # Order and shipping routes
   resources :orders, only: [:new, :create, :show] do
     resources :order_items, only: [:create]
     # Add payment routes nested under orders
     resources :payments, only: [:create]
   end
+  get 'calculate_shipping', to: 'orders#calculate_shipping' # Add this line for shipping calculations
 
   # Stripe webhook route
   post 'webhooks/stripe', to: 'webhooks#create'

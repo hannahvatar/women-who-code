@@ -8,21 +8,35 @@ class OrdersController < ApplicationController
   end
 
   def create
+    Rails.logger.info "------------ ORDER CREATION DEBUG ------------"
+    Rails.logger.info "Order params: #{order_params.inspect}"
+    Rails.logger.info "Country from params: #{params[:order][:country]}"
+
     @order = Order.new(order_params)
+    Rails.logger.info "Order country after initialization: #{@order.country}"
+
     @variant = ProductVariant.find(params[:variant_id])
     @order.total_amount = calculate_total_amount
+    Rails.logger.info "Order total amount: #{@order.total_amount}"
 
     begin
       if @order.save
+        Rails.logger.info "Order saved with country: #{@order.country}"
         create_order_item
-        handle_printify_order
+        Rails.logger.info "Order items created"
+
+        printify_result = handle_printify_order
+        Rails.logger.info "Printify order result: #{printify_result.inspect}"
       else
+        Rails.logger.info "Order validation failed: #{@order.errors.full_messages}"
         render_new_with_errors
       end
     rescue => e
       Rails.logger.error("Order creation failed: #{e.message}")
+      Rails.logger.error(e.backtrace.join("\n"))
       handle_order_failure(e.message)
     end
+    Rails.logger.info "----------------------------------------"
   end
 
   def show
@@ -36,11 +50,17 @@ class OrdersController < ApplicationController
 
   def handle_printify_order
     printify_service = PrintifyService.new
+    Rails.logger.info "Order data before sending to Printify:"
+    Rails.logger.info "Country: #{@order.country}"
+    Rails.logger.info "Full address: #{@order.full_address}"
+
     result = printify_service.send_order_to_printify(@order, test_mode: Rails.env.development?)
 
     if result[:success]
+      Rails.logger.info "Printify order successful"
       redirect_to @order, notice: 'Order was successfully created. Please proceed to payment.'
     else
+      Rails.logger.error "Printify order failed: #{result[:error]}"
       @order.update(
         order_status: 'review_needed',
         error_message: result[:error]
@@ -65,10 +85,18 @@ class OrdersController < ApplicationController
   end
 
   def order_params
-    params.require(:order).permit(
+    permitted_params = params.require(:order).permit(
       :first_name, :last_name, :email, :street_address, :apartment,
       :city, :state, :postal_code, :country, :phone_number, :shipping_method
     )
+
+    Rails.logger.info "------------ ORDER PARAMS DEBUG ------------"
+    Rails.logger.info "Raw order params: #{params[:order]}"
+    Rails.logger.info "Permitted params: #{permitted_params}"
+    Rails.logger.info "Country from params: #{permitted_params[:country]}"
+    Rails.logger.info "---------------------------------------"
+
+    permitted_params
   end
 
   def calculate_total_amount
@@ -81,14 +109,42 @@ class OrdersController < ApplicationController
     total.round(2)
   end
 
-# app/controllers/orders_controller.rb
-def calculate_shipping_cost
-  method = params[:order]&.dig(:shipping_method)
-  WomenWhoCode::Config::SHIPPING_PRICES[method] || 0.00
-rescue => e
-  Rails.logger.error "Error calculating shipping cost: #{e.message}"
-  0.00
-end
+  def calculate_shipping_cost
+    method = params[:order]&.dig(:shipping_method)
+    country = params[:order]&.dig(:country)
+
+    base_costs = {
+      'Standard' => {
+        'US' => 5.00,    # USA
+        'CA' => 7.00,    # Canada
+        'EU' => 12.00,   # European Union
+        'OTHER' => 15.00 # Rest of World
+      },
+      'Express' => {
+        'US' => 10.00,   # USA
+        'CA' => 15.00,   # Canada
+        'EU' => 25.00,   # European Union
+        'OTHER' => 30.00 # Rest of World
+      }
+    }
+
+    eu_countries = ['FR', 'DE', 'IT', 'ES', 'NL', 'BE', 'AT', 'PT', 'GR', 'FI', 'SE', 'DK', 'IE']
+
+    region = if country == 'US'
+              'US'
+            elsif country == 'CA'
+              'CA'
+            elsif eu_countries.include?(country)
+              'EU'
+            else
+              'OTHER'
+             end
+
+    base_costs.dig(method, region) || 0.00
+  rescue => e
+    Rails.logger.error "Error calculating shipping cost: #{e.message}"
+    0.00
+  end
 
   def create_order_item
     OrderItem.create!(

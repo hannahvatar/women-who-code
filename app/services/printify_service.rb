@@ -197,7 +197,7 @@ PROVIDER_LOCATION = {
                          order.phone_number
                        else
                          "+1#{order.phone_number.gsub(/\D/, '')}"
-                       end
+                        end
 
       # Format postal code
       formatted_postal = order.postal_code.gsub(/[\s-]/, '').upcase
@@ -234,48 +234,69 @@ PROVIDER_LOCATION = {
       data
     end
 
-    def send_order_to_printify(order, test_mode: false)
+    def send_order_to_printify(order, test_mode: false, paid: false)
       begin
         order_data = prepare_printify_order(order)
         order_data[:test_mode] = test_mode
+        order_data[:is_paid] = paid # Add payment confirmation
 
-        # Only log essential data
+        # Log order details
+        Rails.logger.info "------------ PRINTIFY ORDER DEBUG ------------"
         Rails.logger.info "Processing order #{order.id}"
         Rails.logger.info "Line items count: #{order.order_items.count}"
+        Rails.logger.info "Payment status: #{paid ? 'Paid' : 'Unpaid'}"
+        Rails.logger.info "Test mode: #{test_mode}"
 
         result = create_order(order_data)
+        Rails.logger.info "Printify API Response: #{result.inspect}"
         Rails.logger.info "Printify API call completed"
+        Rails.logger.info "------------------------------------------"
+
+        if result[:success]
+          order.update(
+            printify_order_id: result[:response]["id"],
+            order_status: paid ? 'processing' : 'pending_payment'
+          )
+        end
 
         result
       rescue => e
-        Rails.logger.error "Error: #{e.message}"
+        Rails.logger.error "Printify Error: #{e.message}"
+        Rails.logger.error e.backtrace.join("\n")
         { success: false, error: e.message }
       end
-    end
+     end
 
     private
 
 
     def normalize_country_code(country)
+      # If it's already a 2-letter code, return it uppercase
+      return country.upcase if country.length == 2
+
       country_map = {
         'Canada' => 'CA',
         'United States' => 'US',
-        'USA' => 'US',
-        'United States of America' => 'US',
-        # Add more common variations
-        'UK' => 'GB',
+        'France' => 'FR',
         'United Kingdom' => 'GB',
-        'Great Britain' => 'GB',
-        'Australia' => 'AU',
-        'New Zealand' => 'NZ',
-        # Add more as needed
+        'Germany' => 'DE',
+        'Italy' => 'IT',
+        'Spain' => 'ES',
+        'Netherlands' => 'NL',
+        'Belgium' => 'BE',
+        'Switzerland' => 'CH',
+        'Sweden' => 'SE',
+        'Norway' => 'NO',
+        'Denmark' => 'DK',
+        'Finland' => 'FI',
+        'Ireland' => 'IE',
+        'Austria' => 'AT',
+        'Portugal' => 'PT',
+        'Greece' => 'GR'
       }
 
       normalized = country_map[country.strip] || country.strip
-
-      # Log the country normalization for debugging
       Rails.logger.info "Country normalization: '#{country}' -> '#{normalized}'"
-
       normalized
     end
 
