@@ -14,11 +14,13 @@ Rails.application.routes.draw do
     # Add payment routes nested under orders
     resources :payments, only: [:create]
   end
-  get 'calculate_shipping', to: 'orders#calculate_shipping' # Add this line for shipping calculations
+  get 'calculate_shipping', to: 'orders#calculate_shipping'
 
-  # Stripe webhook route
-  post 'webhooks/stripe', to: 'webhooks#create'
+  # Stripe & Printify webhooks
+  post 'webhooks/stripe', to: 'webhooks#stripe'
+  post 'webhooks/printify', to: 'webhooks#printify'
+  post 'stripe-webhook', to: 'payments#webhook' # Add Stripe payment webhook
 
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
-end
+ end
