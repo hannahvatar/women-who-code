@@ -3,15 +3,14 @@
   <head>
     <title>WomenWhoCode</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="csrf-token" content="<%= form_authenticity_token %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
     <script src="https://unpkg.com/feather-icons"></script>
     <!-- Add Stripe.js -->
     <script src="https://js.stripe.com/v3/"></script>
-
     <!-- Add publishable key for Stripe -->
     <% if Rails.configuration.stripe[:publishable_key] %>
       <script>
