@@ -265,7 +265,7 @@ PROVIDER_LOCATION = {
         Rails.logger.error e.backtrace.join("\n")
         { success: false, error: e.message }
       end
-     end
+    end
 
     private
 

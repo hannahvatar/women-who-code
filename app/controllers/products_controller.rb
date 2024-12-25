@@ -1,7 +1,8 @@
 class ProductsController < ApplicationController
   def show
     # If no ID provided (root path), get the first product
-    @product = params[:id] ? Product.find(params[:id]) : Product.first
+    @product = params[:id] ? Product.find_by(id: params[:id]) : Product.first
+    redirect_to root_path, alert: "Product not found" unless @product
 
     # Only get variants for our selected colors
     @selected_colors = ['Flo Blue', 'Violet', 'Watermelon', 'Crimson']
