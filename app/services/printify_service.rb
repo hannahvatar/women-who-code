@@ -182,6 +182,8 @@ PROVIDER_LOCATION = {
     end
 
     def prepare_printify_order(order)
+      validate_order(order)
+
       line_items = order.order_items.includes(:product_variant).map do |item|
         {
           product_id: "67618fb75d0f6a015c058749",
@@ -190,23 +192,45 @@ PROVIDER_LOCATION = {
         }
       end
 
+      # Format phone with international code
+      formatted_phone = if order.phone_number.start_with?('+')
+                         order.phone_number
+                       else
+                         "+1#{order.phone_number.gsub(/\D/, '')}"
+                       end
+
+      # Format postal code
+      formatted_postal = order.postal_code.gsub(/[\s-]/, '').upcase
+
       data = {
+        external_id: order.id.to_s,
         line_items: line_items,
-        shipping_address: {
-          first_name: order.first_name,
-          last_name: order.last_name,
-          email: order.email,
-          phone: order.phone_number,
+        shipping_method: get_shipping_method(order.shipping_method),
+        address_to: {  # Changed to address_to
+          first_name: order.first_name.strip,
+          last_name: order.last_name.strip,
+          email: order.email.strip,
+          phone: formatted_phone,
+          address1: order.street_address.strip,
+          address2: order.apartment.presence&.strip || '',
+          city: order.city.strip,
+          region: order.state.strip,
+          zip: formatted_postal,
           country: normalize_country_code(order.country),
-          region: order.state,
-          address1: order.street_address,
-          address2: order.apartment.presence || "",
-          city: order.city,
-          zip: order.postal_code
-        }
+          company: ''
+        },
+        send_shipping_notification: true
       }
 
-      Rails.logger.info "Printify order data: #{data.to_json}"
+      Rails.logger.info "-------- Printify Order Debug --------"
+      Rails.logger.info "Address Details:"
+      data[:address_to].each do |key, value|
+        Rails.logger.info "#{key}: '#{value}'"
+      end
+      Rails.logger.info "Full order data:"
+      Rails.logger.info data.to_json
+      Rails.logger.info "-------- End Debug --------"
+
       data
     end
 
@@ -233,13 +257,26 @@ PROVIDER_LOCATION = {
 
 
     def normalize_country_code(country)
-      # Add country code normalization
       country_map = {
         'Canada' => 'CA',
         'United States' => 'US',
+        'USA' => 'US',
+        'United States of America' => 'US',
+        # Add more common variations
+        'UK' => 'GB',
+        'United Kingdom' => 'GB',
+        'Great Britain' => 'GB',
+        'Australia' => 'AU',
+        'New Zealand' => 'NZ',
         # Add more as needed
       }
-      country_map[country] || country
+
+      normalized = country_map[country.strip] || country.strip
+
+      # Log the country normalization for debugging
+      Rails.logger.info "Country normalization: '#{country}' -> '#{normalized}'"
+
+      normalized
     end
 
     def prepare_recipient(order)
@@ -261,21 +298,25 @@ PROVIDER_LOCATION = {
     end
 
     def validate_order(order)
-      errors = []
+      required_fields = {
+        'First name' => order.first_name,
+        'Last name' => order.last_name,
+        'Email' => order.email,
+        'Phone number' => order.phone_number,
+        'Street address' => order.street_address,
+        'City' => order.city,
+        'State/Province' => order.state,
+        'Postal code' => order.postal_code,
+        'Country' => order.country
+      }
 
-      errors << "Order must have items" if order.order_items.empty?
-      errors << "First name is required" if order.first_name.blank?
-      errors << "Last name is required" if order.last_name.blank?
-      errors << "Email is required" if order.email.blank?
-      errors << "Phone number is required" if order.phone_number.blank?
-      errors << "Shipping address is required" if order.street_address.blank?
-      errors << "City is required" if order.city.blank?
-      errors << "State/Province is required" if order.state.blank?
-      errors << "Postal code is required" if order.postal_code.blank?
-      errors << "Country is required" if order.country.blank?
+      missing_fields = required_fields.select { |_, value| value.blank? }
+                                    .keys
 
-      if errors.any?
-        raise PrintifyOrderError.new(message: errors.join(", "))
+      if missing_fields.any?
+        error_message = "Missing required fields: #{missing_fields.join(', ')}"
+        Rails.logger.error error_message
+        raise PrintifyOrderError.new(message: error_message)
       end
     end
 
