@@ -1,0 +1,10 @@
+@import "config/colors";
+
+.static-page-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 2rem 2rem;
+  background-color: $yellow-100;
+  border-radius: 8px;
+
+}

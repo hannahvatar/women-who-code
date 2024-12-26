@@ -21,6 +21,15 @@ Rails.application.routes.draw do
   post 'webhooks/printify', to: 'webhooks#printify'
   post 'stripe-webhook', to: 'payments#webhook' # Add Stripe payment webhook
 
+  # Static pages
+  get '/terms', to: 'pages#terms', as: :terms
+  get '/privacy', to: 'pages#privacy', as: :privacy
+  get '/refund', to: 'pages#refund', as: :refund
+  get '/shipping', to: 'pages#shipping', as: :shipping
+  get '/disclaimer', to: 'pages#disclaimer', as: :disclaimer
+  get '/intellectual-property', to: 'pages#intellectual_property', as: :intellectual_property
+  get '/contact', to: 'pages#contact', as: :contact
+
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
  end
