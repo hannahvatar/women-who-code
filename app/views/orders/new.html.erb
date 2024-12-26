@@ -1,6 +1,6 @@
 <div class="checkout-container" data-controller="shipping">
  <div class="order-summary">
-   <h2 class="summary-title">Order Summary</h2>
+   <h1 class="summary-title">Order Summary</h1>
    <p>Product: <%= @variant.product.name %></p>
    <p>Color: <%= @variant.color.name %></p>
    <p>Size: <%= @variant.size.name %></p>
@@ -90,7 +90,7 @@
          ],
          { prompt: "Select a country" },
          {
-           class: "form-input",
+           class: "form-select",
            data: {
              shipping_target: "country",
              action: "change->shipping#updateShippingCost"
@@ -110,7 +110,7 @@
          ['Standard', 'Express'],
          { prompt: "Select shipping method" },
          {
-           class: "form-input",
+           class: "form-select",
            data: {
              shipping_target: "shippingMethod",
              action: "change->shipping#updateShippingCost"

@@ -44,7 +44,6 @@
   );
 
   // Disabled state
-  &.disabled,
   &:disabled {
     background-color: $yellow-300;
     cursor: not-allowed;
