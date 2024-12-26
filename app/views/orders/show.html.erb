@@ -45,8 +45,9 @@
     </div>
 
     <div class="order-items">
-      <h3>Order Items</h3>
+      <h2>Order Items</h2>
       <% @order.order_items.each do |item| %>
+      <hr>
         <div class="item">
           <div class="item-details">
             <p class="product-name"><%= item.product_variant.product.name %></p>

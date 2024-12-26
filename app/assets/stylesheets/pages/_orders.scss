@@ -54,7 +54,7 @@
   font-family: "Noto Serif", serif;
   font-style: normal;
   font-weight: 900;
-  color: #141E96;
+  color: $purple-700;
   font-size: 1rem;
   margin-bottom: 0.5rem;
 }
@@ -62,7 +62,7 @@
 .form-input {
   width: 100%;
   padding: 0.5rem 0.75rem;
-  border: 2px solid #141E96;
+  border: 2px solid $purple-700;
   border-radius: 0.25rem;
   background-color: transparent;
 
@@ -72,7 +72,7 @@
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px #141E96;
+    box-shadow: 0 0 0 2px $purple-700;
   }
 }
 
@@ -85,13 +85,13 @@
   background-position: right 0.75rem center;
   background-color: transparent;
   width: 100%;
-  border: 2px solid #141E96;
+  border: 2px solid $purple-700;
   border-radius: 0.25rem;
   color: $purple-400;
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px #141E96;
+    box-shadow: 0 0 0 2px $purple-700;
   }
 }
 
@@ -173,10 +173,9 @@
 }
 
 .main-title {
-  font-family: "Noto Serif", serif;
   font-size: 2rem;
-  color: #141E96;
-  margin-bottom: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 }
 
 .order-container {
@@ -188,14 +187,17 @@
 }
 
 .order-header {
-  border-bottom: 2px solid #141E96;
+  border-bottom: 2px solid $purple-700;
   padding-bottom: 1rem;
   margin-bottom: 2rem;
 
   h2 {
-    font-size: 1.5rem;
-    color: #141E96;
-    margin-bottom: 1rem;
+  font-family: "Noto Serif", serif;
+  font-style: normal;
+  font-weight: 500;
+  color: $purple-700;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
   }
 }
 
@@ -224,7 +226,7 @@
 .total {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #141E96;
+  color: $purple-700;
 }
 
 .info-section {
@@ -232,30 +234,46 @@
 
   h3 {
     font-family: "Noto Serif", serif;
-    color: #141E96;
+    color: $purple-700;
     margin-bottom: 1rem;
   }
 
   .info-content {
-    background: white;
+
     padding: 1.5rem;
     border-radius: 4px;
-    border: 2px solid #141E96;
+    border: 2px solid $purple-700;
   }
 }
 
 .order-items {
+
+  hr {
+    color: $purple-700;
+    opacity: 100%;
+    border-width: 2px;
+  }
+
+  h2 {
+    font-family: "Noto Serif", serif;
+    font-style: normal;
+    font-weight: 500;
+    color: $purple-700;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
   .item {
+
     border-bottom: 1px solid #E5E7EB;
     padding: 1rem 0;
 
     .product-name {
       font-weight: 600;
-      color: #141E96;
+      color: $purple-700;
     }
 
     .variant-info {
-      color: #6B7280;
+      color: $purple-700;
     }
 
     .subtotal {
@@ -271,18 +289,65 @@
 }
 
 .payment-button {
-  background-color: #141E96;
-  color: white;
-  padding: 1rem 2rem;
-  border-radius: 4px;
-  font-weight: 600;
+  outline: none;
+  box-shadow: none;
   border: none;
+  font-size: 20px;
+  font-family: "Noto Serif", serif;
+  font-weight: 800;
+  padding: 18px 60px;
+  overflow: hidden;
+  background: #FFBE00;
+  color: #1b2ac7;
+  width: 100%;
   cursor: pointer;
-  transition: background-color 0.2s;
+  position: relative;
 
-  &:hover {
-    background-color: darken(#141E96, 10%);
+  // Custom clip-path for unique shape
+  clip-path: polygon(
+    2px 36px,
+    37px 2px,
+    calc(100% - 2px) 2px,
+    calc(100% - 2px) calc(100% - 36px),
+    calc(100% - 36px) calc(100% - 2px),
+    2px calc(100% - 2px),
+    2px 36px
+  );
+
+  transition: background-color 0.3s ease;
+
+  // Hover state
+  &:hover:not(:disabled) {
+    background-color: rgba(255, 190, 0, 0.20);
+    color: #FFBE00;
   }
+  clip-path: polygon(
+    2px 36px,
+    37px 2px,
+    calc(100% - 2px) 2px,
+    calc(100% - 2px) calc(100% - 36px),
+    calc(100% - 36px) calc(100% - 2px),
+    2px calc(100% - 2px),
+    2px 36px
+  );
+
+  // Disabled state
+  &:disabled {
+    background-color: $yellow-300;
+    cursor: not-allowed;
+    clip-path: none;
+  }
+
+    // Custom clip-path for unique shape
+    clip-path: polygon(
+      2px 36px,
+      37px 2px,
+      calc(100% - 2px) 2px,
+      calc(100% - 2px) calc(100% - 36px),
+      calc(100% - 36px) calc(100% - 2px),
+      2px calc(100% - 2px),
+      2px 36px
+    );
 }
 
 .payment-processing {
