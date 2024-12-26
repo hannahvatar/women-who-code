@@ -30,6 +30,7 @@ Rails.application.routes.draw do
   get '/intellectual-property', to: 'pages#intellectual_property', as: :intellectual_property
   get '/contact', to: 'pages#contact', as: :contact
   post '/contact', to: 'pages#create_contact', as: :create_contact
+  get '/size-guide', to: 'pages#size_guide', as: :size_guide
 
 
   # Health check

@@ -22,6 +22,9 @@ class PagesController < ApplicationController
   def intellectual_property
   end
 
+  def size_guide
+  end
+
   def contact
   end
 
