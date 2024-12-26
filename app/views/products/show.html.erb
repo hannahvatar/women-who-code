@@ -131,33 +131,38 @@
       </svg>
     </div>
 
+
+
     <p class="product-description">Colors</p>
-    <div class="swatches">
-      <button
-        data-color-id="<%= @colors.find_by(name: 'Flo Blue')&.id %>"
-        data-image-url="https://res.cloudinary.com/diwuyv3c8/image/upload/v1734458159/sweater_blue_anl1zo.jpg"
-        class="color-select selected">
-        <%= image_tag "swatch-blue.svg", alt: "Flo Blue" %>
-      </button>
-      <button
-        data-color-id="<%= @colors.find_by(name: 'Violet')&.id %>"
-        data-image-url="https://res.cloudinary.com/diwuyv3c8/image/upload/v1734458160/sweater_purple_zixn0s.jpg"
-        class="color-select">
-        <%= image_tag "swatch-purple.svg", alt: "Violet" %>
-      </button>
-      <button
-        data-color-id="<%= @colors.find_by(name: 'Watermelon')&.id %>"
-        data-image-url="https://res.cloudinary.com/diwuyv3c8/image/upload/v1734458159/sweater_coral_dsso00.jpg"
-        class="color-select">
-        <%= image_tag "swatch-coral.svg", alt: "Watermelon" %>
-      </button>
-      <button
-        data-color-id="<%= @colors.find_by(name: 'Crimson')&.id %>"
-        data-image-url="https://res.cloudinary.com/diwuyv3c8/image/upload/v1734458159/sweater_crimson_kplpcr.jpg"
-        class="color-select">
-        <%= image_tag "swatch-crimson.svg", alt: "Crimson" %>
-      </button>
-    </div>
+<div class="swatches">
+  <button
+    data-color-id="<%= Color.find_by(name: 'Blue')&.id %>"
+    data-image-url="https://res.cloudinary.com/diwuyv3c8/image/upload/v1734458159/sweater_blue_anl1zo.jpg"
+    class="color-select selected">
+    <%= image_tag "swatch-blue.svg", alt: "Flo Blue" %>
+  </button>
+
+  <button
+    data-color-id="<%= Color.find_by(name: 'Purple')&.id %>"
+    data-image-url="https://res.cloudinary.com/diwuyv3c8/image/upload/v1734458160/sweater_purple_zixn0s.jpg"
+    class="color-select">
+    <%= image_tag "swatch-purple.svg", alt: "Violet" %>
+  </button>
+
+  <button
+    data-color-id="<%= Color.find_by(name: 'Coral')&.id %>"
+    data-image-url="https://res.cloudinary.com/diwuyv3c8/image/upload/v1734458159/sweater_coral_dsso00.jpg"
+    class="color-select">
+    <%= image_tag "swatch-coral.svg", alt: "Watermelon" %>
+  </button>
+
+  <button
+    data-color-id="<%= Color.find_by(name: 'Crimson')&.id %>"
+    data-image-url="https://res.cloudinary.com/diwuyv3c8/image/upload/v1734458159/sweater_crimson_kplpcr.jpg"
+    class="color-select">
+    <%= image_tag "swatch-crimson.svg", alt: "Crimson" %>
+  </button>
+</div>
 
     <p class="product-description">Select size</p>
     <div class="sizes">
@@ -212,97 +217,204 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Initialize state variables
   let selectedColor = null;
   let selectedSize = null;
   const addToCartButton = document.getElementById('add_to_cart_button');
   const variantIdField = document.getElementById('selected_variant_id');
   const mainImage = document.getElementById('main-product-image');
 
-  // Mapping of variant IDs to Printify image URLs
+  // Mapping of variant IDs to Printify image URLs (commented out for reference)
   const productImages = {
     // Flo Blue variants
-    '58': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96869/99007/193e573fc60.jpg',
-    '59': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96870/99007/193e573fc60.jpg',
-    '60': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96871/99007/193e573fc60.jpg',
-    '61': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96872/99007/193e573fc60.jpg',
-    '62': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96873/99007/193e573fc60.jpg',
-    '63': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/102366/99007/193e573fc60.jpg',
-
-    // Violet variants
-    '64': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96909/99007/193e573fc60.jpg',
-    '65': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96910/99007/193e573fc60.jpg',
-    '66': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96911/99007/193e573fc60.jpg',
-    '67': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96912/99007/193e573fc60.jpg',
-    '68': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96913/99007/193e573fc60.jpg',
-    '69': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/102374/99007/193e573fc60.jpg',
-
-    // Watermelon variants
-    '70': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96914/99007/193e573fc60.jpg',
-    '71': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96915/99007/193e573fc60.jpg',
-    '72': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96916/99007/193e573fc60.jpg',
-    '73': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96917/99007/193e573fc60.jpg',
-    '74': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96918/99007/193e573fc60.jpg',
-    '75': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/102375/99007/193e573fc60.jpg',
-
-    // Crimson variants
-    '76': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96859/99007/193e573fc60.jpg',
-    '77': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96860/99007/193e573fc60.jpg',
-    '78': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96861/99007/193e573fc60.jpg',
-    '79': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96862/99007/193e573fc60.jpg',
-    '80': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96863/99007/193e573fc60.jpg',
-    '81': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/102364/99007/193e573fc60.jpg'
+    //'58': 'https://images.printify.com/mockup/67618fb75d0f6a015c058749/96869/99007/193e573fc60.jpg',
+    // Add other variants as needed
   };
 
-  // Color selection
+  // Color selection event handlers
   document.querySelectorAll('.color-select').forEach(button => {
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function(e) {
+      // Prevent default behavior
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Debug logging for color selection
+      console.log('Color button clicked:', {
+        colorId: this.dataset.colorId,
+        colorName: this.querySelector('img')?.alt,
+        imageUrl: this.dataset.imageUrl
+      });
+
+      // Update selected color
       selectedColor = this.dataset.colorId;
       const imageUrl = this.dataset.imageUrl;
+
+      // Update main product image if URL exists
       if (imageUrl) {
         mainImage.src = imageUrl;
       }
+
+      // Update UI to show selected color
       document.querySelectorAll('.color-select').forEach(btn => {
         btn.classList.remove('selected');
       });
       this.classList.add('selected');
+
+      // Check variant availability with new color
       checkVariantAvailability();
     });
   });
 
-  // Size selection
+  // Size selection event handlers
   document.querySelectorAll('.size-button').forEach(button => {
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function(e) {
+      // Debug logging for size selection
+      console.log('Size button clicked:', {
+        sizeId: this.dataset.sizeId,
+        sizeName: this.textContent.trim()
+      });
+
+      // Update selected size
       selectedSize = this.dataset.sizeId;
+
+      // Update UI to show selected size
       document.querySelectorAll('.size-button').forEach(btn => {
         btn.classList.remove('selected');
       });
       this.classList.add('selected');
+
+      // Check variant availability with new size
       checkVariantAvailability();
     });
   });
 
+  // Main function to check variant availability
   function checkVariantAvailability() {
-    if (selectedColor && selectedSize) {
-      fetch(`/product_variants?product_id=<%= @product.id %>&color_id=${selectedColor}&size_id=${selectedSize}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.available) {
-            addToCartButton.disabled = false;
-            variantIdField.value = data.id;
-
-            // Update image based on variant ID
-            if (productImages[data.id]) {
-              mainImage.src = productImages[data.id];
-            }
-
-            addToCartButton.classList.remove('disabled');
-          } else {
-            addToCartButton.disabled = true;
-            variantIdField.value = "";
-            addToCartButton.classList.add('disabled');
-          }
-        });
+    // Exit if either color or size is not selected
+    if (!selectedColor || !selectedSize) {
+      console.log('Incomplete selection:', {
+        colorSelected: Boolean(selectedColor),
+        sizeSelected: Boolean(selectedSize)
+      });
+      disableAddToCart();
+      return;
     }
+
+    // Get current selection elements
+    const colorButton = document.querySelector(`.color-select[data-color-id="${selectedColor}"]`);
+    const sizeButton = document.querySelector(`.size-button[data-size-id="${selectedSize}"]`);
+
+    // Debug logging for current selection
+    console.log('Checking variant availability:', {
+      color: {
+        id: selectedColor,
+        name: colorButton?.querySelector('img')?.alt
+      },
+      size: {
+        id: selectedSize,
+        name: sizeButton?.textContent?.trim()
+      }
+    });
+
+    // Construct URL parameters
+    const params = new URLSearchParams({
+      product_id: <%= @product.id %>,
+      color_id: selectedColor,
+      size_id: selectedSize
+    });
+
+    // Make API request with explicit headers
+    fetch(`/product_variants?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => {
+      // Debug logging for response
+      console.log('Response received:', {
+        status: response.status,
+        contentType: response.headers.get('content-type'),
+        ok: response.ok
+      });
+
+      // Check response status
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Verify content type
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error(`Unexpected content type: ${contentType}`);
+      }
+
+      return response.json();
+    })
+    .then(data => {
+      // Debug logging for parsed data
+      console.log('Variant data:', data);
+
+      // Handle error response
+      if (data.error) {
+        console.error('Server returned error:', data.error);
+        disableAddToCart();
+        return;
+      }
+
+      // Handle successful response
+      if (data.available) {
+        console.log('Variant is available:', {
+          id: data.id,
+          color: data.color_name,
+          size: data.size_name,
+          stock: data.stock
+        });
+        enableAddToCart(data.id);
+      } else {
+        console.log('Variant is unavailable:', data);
+        disableAddToCart();
+      }
+    })
+    .catch(error => {
+      // Handle any errors in the process
+      console.error('Error checking variant availability:', error);
+      disableAddToCart();
+    });
+  }
+
+  // Helper function to enable add to cart
+  function enableAddToCart(variantId) {
+    console.log('Enabling add to cart with variant:', variantId);
+    addToCartButton.disabled = false;
+    variantIdField.value = variantId;
+    addToCartButton.classList.remove('disabled');
+  }
+
+  // Helper function to disable add to cart
+  function disableAddToCart() {
+    console.log('Disabling add to cart');
+    addToCartButton.disabled = true;
+    variantIdField.value = "";
+    addToCartButton.classList.add('disabled');
+  }
+
+  // Check for pre-selected options on page load
+  const preSelectedColor = document.querySelector('.color-select.selected');
+  const preSelectedSize = document.querySelector('.size-button.selected');
+
+  if (preSelectedColor) {
+    selectedColor = preSelectedColor.dataset.colorId;
+  }
+  if (preSelectedSize) {
+    selectedSize = preSelectedSize.dataset.sizeId;
+  }
+
+  // If both color and size are pre-selected, check availability
+  if (selectedColor && selectedSize) {
+    checkVariantAvailability();
   }
 });
 </script>
