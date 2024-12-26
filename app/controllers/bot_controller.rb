@@ -13,12 +13,12 @@ class BotController < ApplicationController
     Rails.logger.info "User question: #{user_question}"
 
     begin
-      if user_question.present? && user_question.match?(/future|destiny|will|tomorrow|what's next/i)
+      if user_question.present? && user_question.match?(/future|destiny|will|tech|code|coding|technology|tomorrow|what's next/i)
         Rails.logger.info "Question is about the future, calling OpenAI..."
         @answer = get_openai_response(user_question)
         Rails.logger.info "OpenAI response received: #{@answer}"
       elsif user_question.present?
-        @answer = "Ask me something about your future!"
+        @answer = "Ask me something about your future in tech!"
         Rails.logger.info "Non-future related question"
       else
         @answer = nil

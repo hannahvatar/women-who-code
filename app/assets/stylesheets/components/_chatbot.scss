@@ -39,8 +39,8 @@
 
 .chat-header {
   padding: 16px;
-  background: linear-gradient(135deg, #8B5CF6, #6366F1);
-  color: white;
+  background: $yellow-200;
+  color: $purple-700;
   border-radius: 12px 12px 0 0;
   display: flex;
   justify-content: space-between;
@@ -51,6 +51,12 @@
   flex-grow: 1;
   padding: 16px;
   overflow-y: auto;
+  font-family: "Noto Serif", serif;
+  font-style: normal;
+  font-weight: 100;
+  color: $purple-700;
+  font-size: 16px;
+
 }
 
 .message {
@@ -61,12 +67,12 @@
 }
 
 .user-message {
-  background: #EEF2FF;
+  background: $purple-100;
   margin-left: auto;
 }
 
 .bot-message {
-  background: #F3F4F6;
+  background: $coral-200;
   margin-right: auto;
 }
 
@@ -79,17 +85,25 @@
 .chat-form input {
   flex-grow: 1;
   padding: 8px 12px;
-  border: 1px solid #E5E7EB;
-  border-radius: 20px;
+  border: 1px solid $purple-700;
+  border-radius: 1rem;
   outline: none;
+  font-family: "Noto Serif", serif;
+  font-style: normal;
+  font-weight: 100;
+  color: $purple-700;
+  font-size: 16px;
+  &::placeholder {
+    color: $purple-400;
+  }
 }
 
 .chat-form button {
-  padding: 8px 16px;
-  background: #8B5CF6;
+  padding: 16px;
+  background: $purple-700;
   color: white;
   border: none;
-  border-radius: 20px;
+  border-radius: 50%;
   cursor: pointer;
 }
 
@@ -107,7 +121,7 @@
 
 // Add hover effects
 .chat-form button:hover {
-  background: #7C3AED;
+  background: $yellow-500;
 }
 
 .close-button:hover {
