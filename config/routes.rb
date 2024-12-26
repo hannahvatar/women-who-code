@@ -29,6 +29,8 @@ Rails.application.routes.draw do
   get '/disclaimer', to: 'pages#disclaimer', as: :disclaimer
   get '/intellectual-property', to: 'pages#intellectual_property', as: :intellectual_property
   get '/contact', to: 'pages#contact', as: :contact
+  post '/contact', to: 'pages#create_contact', as: :create_contact
+
 
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check

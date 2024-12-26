@@ -24,4 +24,11 @@ class PagesController < ApplicationController
 
   def contact
   end
+
+  def create_contact
+    # Handle the form submission
+    # This will be called when the form is submitted
+    flash[:notice] = "Thank you for your message. We will get back to you soon!"
+    redirect_to contact_path
+  end
 end
