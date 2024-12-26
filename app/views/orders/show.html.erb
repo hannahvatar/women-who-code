@@ -1,77 +1,78 @@
-<!-- app/views/orders/show.html.erb -->
-<div class="container">
-  <h1 class="text-3xl font-bold mb-6">Order Confirmation</h1>
 
-  <div class="bg-white p-6 rounded-lg shadow">
-    <div class="order-details">
-      <h2 class="text-xl font-bold mb-4">Order #<%= @order.id %></h2>
-      <div class="flex gap-4 mb-4">
-        <p class="px-3 py-1 rounded <%= @order.order_status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' %>">
-          Order Status: <%= @order.order_status.titleize %>
-        </p>
-        <p class="px-3 py-1 rounded <%= @order.payment_status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' %>">
-          Payment Status: <%= @order.payment_status.titleize %>
-        </p>
+
+
+  <div class="order-container">
+    <div class="order-header">
+    <h1 class="main-title">Order Confirmation</h1>
+      <h2>Order #<%= @order.id %></h2>
+      <div class="status-badges">
+        <span class="status-badge <%= @order.order_status == 'pending' ? 'pending' : 'completed' %>">
+          Order: <%= @order.order_status.titleize %>
+        </span>
+        <span class="status-badge <%= @order.payment_status == 'pending' ? 'pending' : 'completed' %>">
+          Payment: <%= @order.payment_status.titleize %>
+        </span>
       </div>
-      <p>Total Amount: <%= number_to_currency(@order.total_amount) %></p>
+      <p class="total">Total Amount: <%= number_to_currency(@order.total_amount) %></p>
     </div>
 
     <% if @order.error_message.present? %>
-      <div class="mt-4 p-4 bg-red-100 text-red-700 rounded">
+      <div class="error-message">
         <%= @order.error_message %>
       </div>
     <% end %>
 
-    <div class="mt-6">
-      <h3 class="font-bold mb-2">Shipping Information</h3>
-      <p><%= @order.street_address %></p>
-      <% if @order.apartment.present? %>
-        <p>Apt/Suite: <%= @order.apartment %></p>
-      <% end %>
-      <p><%= @order.city %></p>
-      <p><%= @order.postal_code %></p>
-      <p><%= @order.country %></p>
-      <p>Method: <%= @order.shipping_method %></p>
+    <div class="info-section">
+      <h3>Shipping Details</h3>
+      <div class="info-content">
+        <p><%= @order.street_address %></p>
+        <% if @order.apartment.present? %>
+          <p>Apt/Suite: <%= @order.apartment %></p>
+        <% end %>
+        <p><%= @order.city %></p>
+        <p><%= @order.postal_code %></p>
+        <p><%= @order.country %></p>
+        <p>Shipping: <%= @order.shipping_method %></p>
+      </div>
     </div>
 
-    <div class="mt-6">
-      <h3 class="font-bold mb-2">Contact Information</h3>
-      <p>Email: <%= @order.email %></p>
-      <p>Phone: <%= @order.phone_number %></p>
+    <div class="info-section">
+      <h3>Contact Information</h3>
+      <div class="info-content">
+        <p>Email: <%= @order.email %></p>
+        <p>Phone: <%= @order.phone_number %></p>
+      </div>
     </div>
 
-    <div class="mt-6">
-      <h3 class="font-bold mb-2">Order Items</h3>
+    <div class="order-items">
+      <h3>Order Items</h3>
       <% @order.order_items.each do |item| %>
-        <div class="border-t py-4">
-          <p>Product: <%= item.product_variant.product.name %></p>
-          <p>Variant: <%= item.product_variant.color.name %> - <%= item.product_variant.size.name %></p>
-          <p>Quantity: <%= item.quantity %></p>
-          <p>Unit Price: <%= number_to_currency(item.product_variant.product.base_price) %></p>
-          <p>Subtotal: <%= number_to_currency(item.product_variant.product.base_price * item.quantity) %></p>
+        <div class="item">
+          <div class="item-details">
+            <p class="product-name"><%= item.product_variant.product.name %></p>
+            <p class="variant-info"><%= item.product_variant.color.name %> - <%= item.product_variant.size.name %></p>
+            <p>Quantity: <%= item.quantity %></p>
+            <p>Unit Price: <%= number_to_currency(item.product_variant.product.base_price) %></p>
+            <p class="subtotal">Subtotal: <%= number_to_currency(item.product_variant.product.base_price * item.quantity) %></p>
+          </div>
         </div>
       <% end %>
     </div>
 
-    <% if @order.payment_status == 'pending' %>
-      <div class="mt-8 flex justify-center">
+    <div class="payment-section">
+      <% if @order.payment_status == 'pending' %>
         <%= button_to order_payments_path(@order),
-            class: "px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors duration-200",
+            class: "payment-button",
             data: { turbo: false } do %>
           Proceed to Payment
           <% if @order.total_amount %>
             (<%= number_to_currency(@order.total_amount) %>)
           <% end %>
         <% end %>
-      </div>
-    <% elsif @order.payment_status == 'processing' %>
-      <div class="mt-8 text-center">
-        <p class="text-gray-600">Payment in progress...</p>
-      </div>
-    <% elsif @order.payment_status == 'paid' %>
-      <div class="mt-8 text-center">
-        <p class="text-green-600 font-medium">Payment completed! Thank you for your order.</p>
-      </div>
-    <% end %>
+      <% elsif @order.payment_status == 'processing' %>
+        <p class="payment-processing">Payment in progress...</p>
+      <% elsif @order.payment_status == 'paid' %>
+        <p class="payment-complete">Payment completed! Thank you for your order.</p>
+      <% end %>
+    </div>
   </div>
-</div>

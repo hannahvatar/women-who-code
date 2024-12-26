@@ -162,3 +162,143 @@
       2px 36px
     );
 }
+
+
+///////
+
+.order-confirmation {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 2rem;
+}
+
+.main-title {
+  font-family: "Noto Serif", serif;
+  font-size: 2rem;
+  color: #141E96;
+  margin-bottom: 2rem;
+}
+
+.order-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 2rem 2rem;
+  background-color: $yellow-100;
+  border-radius: 8px;
+}
+
+.order-header {
+  border-bottom: 2px solid #141E96;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+
+  h2 {
+    font-size: 1.5rem;
+    color: #141E96;
+    margin-bottom: 1rem;
+  }
+}
+
+.status-badges {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 600;
+
+  &.pending {
+    background-color: #FFE4E4;
+    color: #B91C1C;
+  }
+
+  &.completed {
+    background-color: #E0FFE0;
+    color: #166534;
+  }
+}
+
+.total {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #141E96;
+}
+
+.info-section {
+  margin-bottom: 2rem;
+
+  h3 {
+    font-family: "Noto Serif", serif;
+    color: #141E96;
+    margin-bottom: 1rem;
+  }
+
+  .info-content {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 4px;
+    border: 2px solid #141E96;
+  }
+}
+
+.order-items {
+  .item {
+    border-bottom: 1px solid #E5E7EB;
+    padding: 1rem 0;
+
+    .product-name {
+      font-weight: 600;
+      color: #141E96;
+    }
+
+    .variant-info {
+      color: #6B7280;
+    }
+
+    .subtotal {
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+  }
+}
+
+.payment-section {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.payment-button {
+  background-color: #141E96;
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 4px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: darken(#141E96, 10%);
+  }
+}
+
+.payment-processing {
+  color: #6B7280;
+}
+
+.payment-complete {
+  color: #166534;
+  font-weight: 600;
+}
+
+.error-message {
+  background-color: #FEE2E2;
+  border: 1px solid #EF4444;
+  color: #B91C1C;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
