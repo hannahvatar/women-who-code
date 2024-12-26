@@ -1,21 +1,21 @@
 .chat-widget {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 32px;
+  right: 32px;
   z-index: 1000;
 }
 
 .chat-button {
-  width: 60px;
-  height: 60px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #8B5CF6, #6366F1);
+  background-color: #503CB4;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 40px 5px rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease;
   color: white;
 }
